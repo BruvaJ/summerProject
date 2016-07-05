@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
@@ -26,8 +27,15 @@ import java.util.ArrayList;
 public class MainMenu implements Screen {
     Skin skin;
     Stage stage;
-    Table table;
-    ArrayList<TextButton> mainButtons;
+    Table tabMenu;
+    final ArrayList<Actor> mainButtons = new ArrayList<Actor>();
+    final ArrayList<Actor> optionsButtons = new ArrayList<Actor>();
+    final ArrayList<Actor> vocabButtons = new ArrayList<Actor>();
+
+    final static int TAB_HEIGHT = 50;
+
+    private String[] vocab = {"Cheese", "Pepperoni", "Black Olives", "Potato", "Pumpkin", "w"
+    ,"p","w","s","s","s","s","s"};
 
     LanguageApp game;
 
@@ -61,33 +69,114 @@ public class MainMenu implements Screen {
 
         playButtonStyle.font = skin.getFont("default");
 
-        // should be list. add with loop (or sthg similar...)
-        table = new Table();
-        table.defaults().height(50);
-        table.defaults().width(Settings.GAME_WIDTH/3);
-        final TextButton mainMenuButton = new TextButton("Main", playButtonStyle);
-        final TextButton vocabButton = new TextButton("Vocab", playButtonStyle);
-        final TextButton optionsButton = new TextButton("Options", playButtonStyle);
-
-
-        // the division by three should  perhaps be changed for a check of array size? Easier maintenance... though
-        // this would be better performance and no foreseeable extra options.
-        table.left().bottom();
-        table.add(mainMenuButton);
-        table.add(vocabButton);
-        table.add(optionsButton);
-        stage.addActor(table);
 
         skin.add("default", playButtonStyle);
 
+        createMainButtons(playButtonStyle);
+        createOptionButtons(playButtonStyle);
+        createVocabButtons(playButtonStyle);
+        createTab(playButtonStyle);
+        addButtons(vocabButtons);
+        addButtons(mainButtons);
+        addButtons(optionsButtons);
+
+        setVisibility(mainButtons, optionsButtons, vocabButtons);
+    }
+
+    private void createVocabButtons(TextButtonStyle style) {
+        Table myTable = new Table();
+//        vocabButtons.add(myTable);
+        myTable.defaults().height((Settings.GAME_HEIGHT - TAB_HEIGHT) / 10);
+ //       myTable.defaults().width(Settings.GAME_WIDTH);
+ //       myTable.setPosition(0 + TAB_HEIGHT, 0);
+
+        for (String word:vocab
+             ) {
+            myTable.add(new TextButton(word, style));
+            myTable.row();
+        }
+
+        final ScrollPane scroller = new ScrollPane(myTable);
+        final Table finalTable = new Table();
+        finalTable.setFillParent(true);
+        finalTable.padBottom(TAB_HEIGHT);
+        finalTable.add(scroller);
+        vocabButtons.add(finalTable);
+    }
+
+    private void createOptionButtons(TextButtonStyle style) {
+        final TextButton testButton = new TextButton("Test", style);
+        testButton.setPosition(Settings.GAME_WIDTH/2 -50,Settings.GAME_HEIGHT/2 - 50);
+        optionsButtons.add(testButton);
+    }
+
+    private void createTab(TextButtonStyle style) {
+
+        final TextButton mainMenuButton = new TextButton("Main", style);
+        final TextButton vocabButton = new TextButton("Vocab", style);
+        final TextButton optionsButton = new TextButton("Options", style);
+        // should be list. add with loop (or sthg similar...)
+        tabMenu = new Table();
+        tabMenu.defaults().height(TAB_HEIGHT);
+        // the division by three should  perhaps be changed for a check of array size? Easier maintenance... though
+        // this would be better performance and no foreseeable extra options.
+        tabMenu.defaults().width(Settings.GAME_WIDTH/3);
+        tabMenu.left().bottom();
+        tabMenu.add(mainMenuButton);
+        tabMenu.add(vocabButton);
+        tabMenu.add(optionsButton);
+        stage.addActor(tabMenu);
+
+        // the visibility setting will all use same method. order dictates which are set
+        // invisible and which visible once more lists etc are made. Complication with how option buttons are implemented?
+        optionsButton.addListener(new ChangeListener() {
+            public void changed (ChangeEvent event, Actor actor) {
+                // this should be in a method selectOptions()
+                setVisibility(optionsButtons, mainButtons, vocabButtons);
+            }
+        });
+
+        mainMenuButton.addListener(new ChangeListener() {
+            public void changed (ChangeEvent event, Actor actor) {
+                setVisibility(mainButtons, optionsButtons, vocabButtons);
+            }
+        });
+
+        vocabButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                setVisibility(vocabButtons, mainButtons, optionsButtons);
+            }
+        });
+    }
+
+    private void setVisibility(ArrayList<Actor>onButtons, ArrayList<Actor> offButtons1, ArrayList<Actor> offButtons2) {
+        for (Actor b1:onButtons
+                ) {
+            b1.setVisible(true);
+        }
+        for (Actor b1:offButtons1
+             ) {
+            b1.setVisible(false);
+        }
+        for (Actor b2:offButtons2
+             ) {
+            b2.setVisible(false);
+        }
+    }
+
+    private void addButtons(ArrayList<Actor> mainButtons) {
+        for (Actor button: mainButtons
+             ) {
+            stage.addActor(button);
+        }
+    }
+
+    private void createMainButtons(TextButtonStyle playButtonStyle) {
         final TextButton quizButton = new TextButton("QUIZ", playButtonStyle);
         final TextButton playButton = new TextButton("PLAY", playButtonStyle);
         quizButton.setPosition(100, 200);
         playButton.setPosition(300, 200);
-
-        stage.addActor(quizButton);
-        stage.addActor(playButton);
-
 
         // convert x and y to absolute position?
         quizButton.addListener(new ChangeListener() {
@@ -104,21 +193,8 @@ public class MainMenu implements Screen {
             }
         });
 
-        optionsButton.addListener(new ChangeListener() {
-            public void changed (ChangeEvent event, Actor actor) {
-                // this should be in a method selectOptions()
-                playButton.setVisible(false);
-                quizButton.setVisible(false);
-            }
-        });
-
-        mainMenuButton.addListener(new ChangeListener() {
-            public void changed (ChangeEvent event, Actor actor) {
-                playButton.setVisible(true);
-                quizButton.setVisible(true);
-            }
-        });
-
+        mainButtons.add(quizButton);
+        mainButtons.add(playButton);
     }
 
     public void render (float delta) {
