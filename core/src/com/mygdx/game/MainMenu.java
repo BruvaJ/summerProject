@@ -34,8 +34,8 @@ public class MainMenu implements Screen {
 
     final static int TAB_HEIGHT = 50;
 
-    private String[] vocab = {"Cheese", "Pepperoni", "Black Olives", "Potato", "Pumpkin", "w"
-    ,"p","w","s","s","s","s","s"};
+    FileIO fileIO = new FileIO();
+    private String[] vocab = fileIO.readFile("vocab.txt");
 
     LanguageApp game;
 
@@ -85,10 +85,7 @@ public class MainMenu implements Screen {
 
     private void createVocabButtons(TextButtonStyle style) {
         Table myTable = new Table();
-//        vocabButtons.add(myTable);
         myTable.defaults().height((Settings.GAME_HEIGHT - TAB_HEIGHT) / 10);
- //       myTable.defaults().width(Settings.GAME_WIDTH);
- //       myTable.setPosition(0 + TAB_HEIGHT, 0);
 
         for (String word:vocab
              ) {
@@ -151,17 +148,17 @@ public class MainMenu implements Screen {
     }
 
     private void setVisibility(ArrayList<Actor>onButtons, ArrayList<Actor> offButtons1, ArrayList<Actor> offButtons2) {
-        for (Actor b1:onButtons
+        for (Actor b:onButtons
                 ) {
-            b1.setVisible(true);
+            b.setVisible(true);
         }
-        for (Actor b1:offButtons1
+        for (Actor b:offButtons1
              ) {
-            b1.setVisible(false);
+            b.setVisible(false);
         }
-        for (Actor b2:offButtons2
+        for (Actor b:offButtons2
              ) {
-            b2.setVisible(false);
+            b.setVisible(false);
         }
     }
 
@@ -212,6 +209,7 @@ public class MainMenu implements Screen {
 
     @Override
     public void resize (int width, int height) {
+        stage.getViewport().update(width, height, true);
     }
 
     @Override
