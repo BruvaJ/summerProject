@@ -34,9 +34,6 @@ public class MainMenu implements Screen {
 
     final static int TAB_HEIGHT = 50;
 
-    FileIO fileIO = new FileIO();
-    private String[] vocab = fileIO.readFile("vocab.txt");
-
     LanguageApp game;
 
     public MainMenu(LanguageApp game){
@@ -57,24 +54,36 @@ public class MainMenu implements Screen {
 
         skin.add("white", new Texture(pixmap));
 
+        // put this in assets too?
         BitmapFont bfont = new BitmapFont();
-        skin.add("default", bfont);
 
-        // should seperate into class of its own?
+        skin.add("english", bfont);
+        skin.add("japanese", JapaneseGenerator.jFont);
+
+        // should seperate into class of its own? best solution would be to setup with JSON no?
         TextButtonStyle playButtonStyle = new TextButtonStyle();
         playButtonStyle.up = skin.newDrawable("white", Color.DARK_GRAY);
         playButtonStyle.down = skin.newDrawable("white", Color.DARK_GRAY);
         playButtonStyle.checked = skin.newDrawable("white", Color.BLUE);
         playButtonStyle.over = skin.newDrawable("white", Color.LIGHT_GRAY);
 
-        playButtonStyle.font = skin.getFont("default");
+        playButtonStyle.font = skin.getFont("english");
+
+        TextButtonStyle japaneseButtonStyle = new TextButtonStyle();
+        japaneseButtonStyle.up = skin.newDrawable("white", Color.DARK_GRAY);
+        japaneseButtonStyle.down = skin.newDrawable("white", Color.DARK_GRAY);
+        japaneseButtonStyle.checked = skin.newDrawable("white", Color.BLUE);
+        japaneseButtonStyle.over = skin.newDrawable("white", Color.LIGHT_GRAY);
+
+        japaneseButtonStyle.font = skin.getFont("japanese");
 
 
-        skin.add("default", playButtonStyle);
+        skin.add("english", playButtonStyle);
+        skin.add("japanese", japaneseButtonStyle);
 
         createMainButtons(playButtonStyle);
         createOptionButtons(playButtonStyle);
-        createVocabButtons(playButtonStyle);
+        createVocabButtons(playButtonStyle, japaneseButtonStyle);
         createTab(playButtonStyle);
         addButtons(vocabButtons);
         addButtons(mainButtons);
@@ -83,13 +92,14 @@ public class MainMenu implements Screen {
         setVisibility(mainButtons, optionsButtons, vocabButtons);
     }
 
-    private void createVocabButtons(TextButtonStyle style) {
+    private void createVocabButtons(TextButtonStyle e, TextButtonStyle j) {
         Table myTable = new Table();
         myTable.defaults().height((Settings.GAME_HEIGHT - TAB_HEIGHT) / 10);
 
-        for (String word:vocab
+        for (int i = 0; i< Assets.englishVocab.length; i++
              ) {
-            myTable.add(new TextButton(word, style));
+            myTable.add(new TextButton(Assets.englishVocab[i], e));
+            myTable.add(new TextButton(Assets.japaneseVocab[i], j));
             myTable.row();
         }
 
@@ -124,11 +134,9 @@ public class MainMenu implements Screen {
         tabMenu.add(optionsButton);
         stage.addActor(tabMenu);
 
-        // the visibility setting will all use same method. order dictates which are set
-        // invisible and which visible once more lists etc are made. Complication with how option buttons are implemented?
+
         optionsButton.addListener(new ChangeListener() {
             public void changed (ChangeEvent event, Actor actor) {
-                // this should be in a method selectOptions()
                 setVisibility(optionsButtons, mainButtons, vocabButtons);
             }
         });
