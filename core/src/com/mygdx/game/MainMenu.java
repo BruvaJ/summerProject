@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
@@ -54,13 +53,12 @@ public class MainMenu implements Screen {
 
         skin.add("white", new Texture(pixmap));
 
-        // put this in assets too?
-        BitmapFont bfont = new BitmapFont();
 
-        skin.add("english", bfont);
-        skin.add("japanese", JapaneseGenerator.jFont);
+        skin.add("english", Assets.eFont);
+        skin.add("japanese", Assets.jFont);
 
         // should seperate into class of its own? best solution would be to setup with JSON no?
+        // either way this needs to be in assets / somewhere else so can be accessed everywhere
         TextButtonStyle playButtonStyle = new TextButtonStyle();
         playButtonStyle.up = skin.newDrawable("white", Color.DARK_GRAY);
         playButtonStyle.down = skin.newDrawable("white", Color.DARK_GRAY);

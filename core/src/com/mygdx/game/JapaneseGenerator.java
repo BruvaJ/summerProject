@@ -5,6 +5,9 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Created by Jonneh on 06/07/2016.
  *
@@ -13,11 +16,10 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
  * http://welina.holy.jp/font/tegaki/chif/
  */
 public class JapaneseGenerator {
-    public String FONT_CHARS;
+    public static String FONT_CHARS;
     public String FONT_PATH;
-    FreeTypeFontGenerator generator;
-    FreeTypeFontGenerator.FreeTypeFontParameter parameter;
-    public static BitmapFont jFont;
+    public static FreeTypeFontGenerator generator;
+    public static FreeTypeFontGenerator.FreeTypeFontParameter parameter;
 
 
 
@@ -27,7 +29,12 @@ public class JapaneseGenerator {
 
         // move this out of constructor into a reusable method.  with parameter dicating the FONT_CHARS (as discussed above)
         // or should this just be done in Assets. no need for JapaneseGenerator class really...
-        String FONT_CHARS = "そそれ";
+
+    }
+
+    public static BitmapFont generate(String[] s){
+        // static class members should be used instead?
+        FONT_CHARS = uniqueChars(s);
 
         final String FONT_PATH = "chichiya.ttf";
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal(FONT_PATH));
@@ -35,7 +42,18 @@ public class JapaneseGenerator {
         parameter.characters = FONT_CHARS;
         parameter.size = 15;
         parameter.color = Color.WHITE;
-        jFont = generator.generateFont(parameter);
+        BitmapFont jFont = generator.generateFont(parameter);
         generator.dispose();
+        return jFont;
+    }
+
+    private static String uniqueChars(String[] sArray) {
+        Set<Character> charArray = new HashSet<Character>();
+        for (String s:sArray) {
+            for(Character c : s.toCharArray()){
+                charArray.add(c);
+            }
+        }
+        return charArray.toString();
     }
 }

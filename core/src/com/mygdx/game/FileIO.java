@@ -6,14 +6,14 @@ import com.badlogic.gdx.files.FileHandle;
  * Created by Jonneh on 06/07/2016.
  */
 public class FileIO {
-    private FileHandle handle;
+    private static FileHandle handle;
 
     public FileIO(){
     }
 
-    public String[] readFile(String path){
+    public static String readFile(String path){
         handle = Gdx.files.internal(path);
         String vocabString = handle.readString();
-        return vocabString.split("\n");
+        return vocabString;
     }
 }
