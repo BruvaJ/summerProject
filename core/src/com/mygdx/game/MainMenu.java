@@ -1,11 +1,14 @@
 package com.mygdx.game;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
@@ -23,15 +26,14 @@ import java.util.ArrayList;
  * Created by Jonneh on 04/07/2016.
  */
 
-public class MainMenu implements Screen {
-    Skin skin;
-    Stage stage;
-    Table tabMenu;
-    final ArrayList<Actor> mainButtons = new ArrayList<Actor>();
-    final ArrayList<Actor> optionsButtons = new ArrayList<Actor>();
-    final ArrayList<Actor> vocabButtons = new ArrayList<Actor>();
+public class MainMenu extends ScreenAdapter {
+    private final Skin skin = new Skin();
+    private final Stage stage = new Stage(new StretchViewport(Settings.GAME_WIDTH, Settings.GAME_HEIGHT));
+    private final ArrayList<Actor> mainButtons = new ArrayList<Actor>();
+    private final ArrayList<Actor> optionsButtons = new ArrayList<Actor>();
+    private final ArrayList<Actor> vocabButtons = new ArrayList<Actor>();
 
-    final static int TAB_HEIGHT = 50;
+    private final static int TAB_HEIGHT = 50;
 
     LanguageApp game;
 
@@ -40,49 +42,26 @@ public class MainMenu implements Screen {
         this.game = game;
     }
 
-    public void create() {
-        stage = new Stage(new StretchViewport(Settings.GAME_WIDTH, Settings.GAME_HEIGHT));
+    private void create() {
         Gdx.input.setInputProcessor(stage);
 
-        skin = new Skin();
+        //workaround for json problem. Not to stay here. New class, assets, or japaneseGenerator?
+        TextButtonStyle jButton = new TextButtonStyle();
+        skin.add("jFont", Assets.jFont, BitmapFont.class);
+        jButton.font = skin.getFont("jFont");
+        skin.add("jButton", jButton, TextButtonStyle.class);
+        FileHandle fileHandle = Gdx.files.internal("uiskin.json");
+        FileHandle atlasFile = fileHandle.sibling("uiskin.atlas");
 
-        // to be changed to my own file
-        Pixmap pixmap = new Pixmap(100, 100, Pixmap.Format.RGBA8888);
-        pixmap.setColor(Color.GREEN);
-        pixmap.fill();
+        if (atlasFile.exists()) {
+            skin.addRegions(new TextureAtlas(atlasFile));
+        }
+        skin.load(fileHandle);
 
-        skin.add("white", new Texture(pixmap));
-
-
-        skin.add("english", Assets.eFont);
-        skin.add("japanese", Assets.jFont);
-
-        // should seperate into class of its own? best solution would be to setup with JSON no?
-        // either way this needs to be in assets / somewhere else so can be accessed everywhere
-        TextButtonStyle playButtonStyle = new TextButtonStyle();
-        playButtonStyle.up = skin.newDrawable("white", Color.DARK_GRAY);
-        playButtonStyle.down = skin.newDrawable("white", Color.DARK_GRAY);
-        playButtonStyle.checked = skin.newDrawable("white", Color.BLUE);
-        playButtonStyle.over = skin.newDrawable("white", Color.LIGHT_GRAY);
-
-        playButtonStyle.font = skin.getFont("english");
-
-        TextButtonStyle japaneseButtonStyle = new TextButtonStyle();
-        japaneseButtonStyle.up = skin.newDrawable("white", Color.DARK_GRAY);
-        japaneseButtonStyle.down = skin.newDrawable("white", Color.DARK_GRAY);
-        japaneseButtonStyle.checked = skin.newDrawable("white", Color.BLUE);
-        japaneseButtonStyle.over = skin.newDrawable("white", Color.LIGHT_GRAY);
-
-        japaneseButtonStyle.font = skin.getFont("japanese");
-
-
-        skin.add("english", playButtonStyle);
-        skin.add("japanese", japaneseButtonStyle);
-
-        createMainButtons(playButtonStyle);
-        createOptionButtons(playButtonStyle);
-        createVocabButtons(playButtonStyle, japaneseButtonStyle);
-        createTab(playButtonStyle);
+        createMainButtons();
+        createOptionButtons();
+        createVocabButtons();
+        createTab();
         addButtons(vocabButtons);
         addButtons(mainButtons);
         addButtons(optionsButtons);
@@ -90,41 +69,41 @@ public class MainMenu implements Screen {
         setVisibility(mainButtons, optionsButtons, vocabButtons);
     }
 
-    private void createVocabButtons(TextButtonStyle e, TextButtonStyle j) {
-        Table myTable = new Table();
-        myTable.defaults().height((Settings.GAME_HEIGHT - TAB_HEIGHT) / 10);
+    private void createVocabButtons() {
+        Table contents = new Table();
+        contents.defaults().height((Settings.GAME_HEIGHT - TAB_HEIGHT) / 10);
 
         for (int i = 0; i< Assets.englishVocab.length; i++
              ) {
-            myTable.add(new TextButton(Assets.englishVocab[i], e));
-            myTable.add(new TextButton(Assets.japaneseVocab[i], j));
-            myTable.row();
+            contents.add(new TextButton(Assets.englishVocab[i], skin));
+            contents.add(new TextButton(Assets.japaneseVocab[i], skin, "jButton"));
+            contents.row();
         }
 
-        final ScrollPane scroller = new ScrollPane(myTable);
-        final Table finalTable = new Table();
-        finalTable.setFillParent(true);
-        finalTable.padBottom(TAB_HEIGHT);
-        finalTable.add(scroller);
-        vocabButtons.add(finalTable);
+        final ScrollPane scroller = new ScrollPane(contents);
+        final Table frame = new Table();
+        frame.setFillParent(true);
+        frame.padBottom(TAB_HEIGHT);
+        frame.add(scroller);
+        vocabButtons.add(frame);
     }
 
-    private void createOptionButtons(TextButtonStyle style) {
-        final TextButton testButton = new TextButton("Test", style);
+    private void createOptionButtons() {
+        final TextButton testButton = new TextButton("Test", skin);
         testButton.setPosition(Settings.GAME_WIDTH/2 -50,Settings.GAME_HEIGHT/2 - 50);
         optionsButtons.add(testButton);
     }
 
-    private void createTab(TextButtonStyle style) {
+    private void createTab() {
 
-        final TextButton mainMenuButton = new TextButton("Main", style);
-        final TextButton vocabButton = new TextButton("Vocab", style);
-        final TextButton optionsButton = new TextButton("Options", style);
-        // should be list. add with loop (or sthg similar...)
-        tabMenu = new Table();
+        final TextButton mainMenuButton = new TextButton("Main", skin);
+        final TextButton vocabButton = new TextButton("Vocab", skin);
+        final TextButton optionsButton = new TextButton("Options", skin);
+
+        Table tabMenu = new Table();
         tabMenu.defaults().height(TAB_HEIGHT);
-        // the division by three should  perhaps be changed for a check of array size? Easier maintenance... though
-        // this would be better performance and no foreseeable extra options.
+        // should be list. add with loop (or sthg similar...)
+        // then, the division by three should  perhaps be changed for a check of array size? Easier maintenance...
         tabMenu.defaults().width(Settings.GAME_WIDTH/3);
         tabMenu.left().bottom();
         tabMenu.add(mainMenuButton);
@@ -175,9 +154,9 @@ public class MainMenu implements Screen {
         }
     }
 
-    private void createMainButtons(TextButtonStyle playButtonStyle) {
-        final TextButton quizButton = new TextButton("QUIZ", playButtonStyle);
-        final TextButton playButton = new TextButton("PLAY", playButtonStyle);
+    private void createMainButtons() {
+        final TextButton quizButton = new TextButton("QUIZ", skin);
+        final TextButton playButton = new TextButton("PLAY", skin);
         quizButton.setPosition(100, 200);
         playButton.setPosition(300, 200);
 
@@ -185,7 +164,8 @@ public class MainMenu implements Screen {
         quizButton.addListener(new ChangeListener() {
             public void changed (ChangeEvent event, Actor actor) {
                 //System.out.println("Clicked! Is checked: " + button.isChecked());
-                quizButton.setText("Starting new quiz");
+                dispose();
+                game.setScreen(new QuizGame(game));
             }
         });
 
@@ -201,11 +181,10 @@ public class MainMenu implements Screen {
     }
 
     public void render (float delta) {
-        Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 1);
+        Gdx.gl.glClearColor(0, 0, 0, 0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
         stage.draw();
-       // Table.setDebug(true);
     }
 
     @Override

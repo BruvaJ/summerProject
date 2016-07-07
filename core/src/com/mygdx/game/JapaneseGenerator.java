@@ -16,8 +16,8 @@ import java.util.Set;
  * http://welina.holy.jp/font/tegaki/chif/
  */
 public class JapaneseGenerator {
-    public static String FONT_CHARS;
-    public String FONT_PATH;
+    private static String FONT_CHARS;
+    public static String FONT_PATH;
     public static FreeTypeFontGenerator generator;
     public static FreeTypeFontGenerator.FreeTypeFontParameter parameter;
 
@@ -42,9 +42,9 @@ public class JapaneseGenerator {
         parameter.characters = FONT_CHARS;
         parameter.size = 15;
         parameter.color = Color.WHITE;
-        BitmapFont jFont = generator.generateFont(parameter);
+        BitmapFont font = generator.generateFont(parameter);
         generator.dispose();
-        return jFont;
+        return font;
     }
 
     private static String uniqueChars(String[] sArray) {
