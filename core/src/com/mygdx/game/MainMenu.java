@@ -3,10 +3,7 @@ package com.mygdx.game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -46,6 +43,7 @@ public class MainMenu extends ScreenAdapter {
         Gdx.input.setInputProcessor(stage);
 
         //workaround for json problem. Not to stay here. New class, assets, or japaneseGenerator?
+        // can programatically add all details to button before putting into json
         TextButtonStyle jButton = new TextButtonStyle();
         skin.add("jFont", Assets.jFont, BitmapFont.class);
         jButton.font = skin.getFont("jFont");
@@ -72,6 +70,7 @@ public class MainMenu extends ScreenAdapter {
     private void createVocabButtons() {
         Table contents = new Table();
         contents.defaults().height((Settings.GAME_HEIGHT - TAB_HEIGHT) / 10);
+        contents.defaults().width(Settings.GAME_WIDTH / 2);
 
         for (int i = 0; i< Assets.englishVocab.length; i++
              ) {
