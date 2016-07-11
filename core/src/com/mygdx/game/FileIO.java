@@ -11,6 +11,8 @@ public class FileIO {
     public FileIO(){
     }
 
+
+    // requires some error handling.... exists().
     public static String readFile(String path){
         handle = Gdx.files.internal(path);
         String vocabString = handle.readString();

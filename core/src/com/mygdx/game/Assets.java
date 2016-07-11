@@ -7,8 +7,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
-import java.util.Collections;
-import java.util.Set;
+import java.util.ArrayList;
 
 /**
  * Created by Jonneh on 04/07/2016.
@@ -22,8 +21,7 @@ public class Assets {
 
    public static Sound clickSound;
 
-   public static String englishVocab[];
-   public static String japaneseVocab[];
+   public static ArrayList<VocabItem> vocab = new ArrayList<VocabItem>();
    public static BitmapFont jFont;
    public static BitmapFont eFont;
 
@@ -42,12 +40,23 @@ public class Assets {
 
         clickSound = Gdx.audio.newSound(Gdx.files.internal("click.wav"));
 
-        englishVocab = FileIO.readFile("englishVocab.txt").split("\n");
-        japaneseVocab = FileIO.readFile("japaneseVocab.txt").split("\n");
+        // at a later date there will be an extra file "Count" that may or may not be drawn. Different constructor can be used.
+        String[] eVocab = FileIO.readFile("eVocab.txt").split("\n");
+        String[] jVocab = FileIO.readFile("jVocab.txt").split("\n");
+        createVocabItems(eVocab, jVocab);
 
-        jFont = JapaneseGenerator.generate(japaneseVocab);
+        jFont = JapaneseGenerator.generate(jVocab);
         eFont = new BitmapFont();
     }
+
+    // should this be a class?
+    private static void createVocabItems(String[] eVocab, String[] jVocab) {
+        // error checking?  if eVocab.length == jVocab.length
+        for(int i = 0; i < eVocab.length; i++){
+            vocab.add(new VocabItem(eVocab[i], jVocab[i], i));
+        }
+    }
+
 
     public static void playSound(Sound sound) {
         if(Settings.soundEnabled)

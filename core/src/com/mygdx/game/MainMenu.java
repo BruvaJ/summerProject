@@ -72,10 +72,10 @@ public class MainMenu extends ScreenAdapter {
         contents.defaults().height((Settings.GAME_HEIGHT - TAB_HEIGHT) / 10);
         contents.defaults().width(Settings.GAME_WIDTH / 2);
 
-        for (int i = 0; i< Assets.englishVocab.length; i++
+        for (int i = 0; i< Assets.vocab.size(); i++
              ) {
-            contents.add(new TextButton(Assets.englishVocab[i], skin));
-            contents.add(new TextButton(Assets.japaneseVocab[i], skin, "jButton"));
+            contents.add(new TextButton(Assets.vocab.get(i).geteVocab(), skin));
+            contents.add(new TextButton(Assets.vocab.get(i).getjVocab(), skin, "jButton"));
             contents.row();
         }
 

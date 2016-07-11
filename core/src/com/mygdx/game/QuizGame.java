@@ -57,11 +57,7 @@ public class QuizGame extends ScreenAdapter{
 
     // need to check that same word isn't used.
     private void setAnswers() {
-        for (int i = 0; i < 4; i++
-                ){
-            int r = rand.nextInt(Assets.englishVocab.length);
-            answers.get(i).set(Assets.englishVocab[r], r);
-        }
+
     }
 
     private void buildUI() {
