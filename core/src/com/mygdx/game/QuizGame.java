@@ -5,10 +5,8 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 
@@ -24,10 +22,18 @@ public class QuizGame extends ScreenAdapter{
     private final Table answerGrid = new Table();
     private final Table questionGrid = new Table();
 
+    private final static int J_E = 0;
+    private final static int E_J = 1;
+    private final static int GAME_MODE = -1;
+    private final static int PLAY_COUNT = 20;
+    private int questionsAnswered = 0;
+    private int score = 0;
+
 
     // by using Button and casting to text or image would it be easier to create?
-    // maybe its just cleaner to have separate buttons / lists of buttons...
     private QuizButton questionButton;
+
+    private final TextArea scoreText = new TextArea("", Assets.skin);
 
     private final ArrayList<QuizButton> answerButtons = new ArrayList<QuizButton>(4);
 
@@ -43,10 +49,31 @@ public class QuizGame extends ScreenAdapter{
     private void create(){
         Gdx.input.setInputProcessor(stage);
         buildUI();
-        buildAnswers();
-        setAnswers();
-        buildQuestion();
-        setQuestion();
+        addListeners();
+        play();
+    }
+
+    private void addListeners() {
+        for (QuizButton b : answerButtons
+                ) {
+            b.addListener(new ClickListener() {
+                @Override
+                // close but no cigar!!
+                public void clicked(InputEvent event, float x, float y) {
+                    QuizButton button = (QuizButton) event.getListenerActor();
+                    checkAnswer(button);
+                }
+            });
+        }
+    }
+    private void play() {
+        if(questionsAnswered < PLAY_COUNT) {
+            newQuestion();
+        }
+        else{
+            // end game
+        }
+
     }
 
     private void setQuestion() {
@@ -62,24 +89,20 @@ public class QuizGame extends ScreenAdapter{
         for (int i = 0; i < 4; i++
                 ){
           answerButtons.get(i).setText(answerButtons.get(i).geteVocab());
-          answerButtons.get(i).addListener(new ClickListener(){
-           @Override
-           // close but no cigar!!
-           public void clicked(InputEvent event, float x, float y){
-               QuizButton button = (QuizButton)event.getListenerActor();
-               checkAnswer(button);
-           }
-       });
         }
     }
 
     private void checkAnswer(QuizButton button) {
+        questionsAnswered = questionsAnswered + 1;
+        Gdx.app.log("questions answered", Integer.toString(questionsAnswered));
+        Gdx.app.log("score", Integer.toString(score));
         if (button.getIndex() == questionButton.getIndex()){
             // show success
-            // add score
-            newQuestion();
+            score ++;
+            play();
         }else{
             // no score. show fail (refer to failed button)
+            play();
         }
     }
 
@@ -88,6 +111,11 @@ public class QuizGame extends ScreenAdapter{
         setAnswers();
         buildQuestion();
         setQuestion();
+        setScore();
+    }
+
+    private void setScore() {
+        scoreText.setText("Score:" + score + "/ 20");
     }
 
     private void buildAnswers() {
@@ -96,8 +124,20 @@ public class QuizGame extends ScreenAdapter{
                  ){
              VocabItem tempItem = Assets.vocab.get(rand.nextInt(Assets.vocab.size()));
              answerButtons.get(i).set(tempItem.geteVocab(), tempItem.getjVocab(), tempItem.getIndex());
+//             checkUnique();
          }
      }
+
+//  private void checkUnique() {
+//      // perhaps this should be more complicated when choosing vocab. depend on how many times its been seen before for example
+//      for (int i = 0; i < 4; i++) {
+//          for (QuizButton answer : answerButtons
+//                  ) {
+//              if (answerButtons.get(i).getIndex() == answer.getIndex())
+//                  buildAnswers();
+//          }
+//      }
+//  }
 
 
     private void buildUI() {
@@ -113,8 +153,14 @@ public class QuizGame extends ScreenAdapter{
 //           }
 //       });
 //        answerGrid.setFillParent(true);
-        topTab.setPosition(Settings.GAME_WIDTH / 2, Settings.GAME_HEIGHT / 5);
-        topTab.setDebug(true);
+        scoreText.setDisabled(true);
+        scoreText.setPosition(Settings.GAME_WIDTH - scoreText.getWidth(), Settings.GAME_HEIGHT - scoreText.getHeight());
+//       topTab.add(scoreText);
+//       topTab.center();
+//       topTab.setPosition(Settings.GAME_WIDTH / 2, Settings.GAME_HEIGHT - scoreText.getHeight());
+//       topTab.setWidth(Settings.GAME_WIDTH);
+//       topTab.setDebug(true);
+
 
 
         answerGrid.center();
@@ -133,7 +179,7 @@ public class QuizGame extends ScreenAdapter{
 
         stage.addActor(answerGrid);
 
-        stage.addActor(topTab);
+        stage.addActor(scoreText);
         stage.addActor(questionGrid);
     }
 
@@ -172,6 +218,10 @@ public class QuizGame extends ScreenAdapter{
 
     @Override
     public void dispose() {
+        for (QuizButton b:answerButtons
+             ) {
+            b.isDisabled();
+        }
         super.dispose();
     }
 }

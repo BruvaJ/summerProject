@@ -9,7 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 public class QuizButton extends TextButton{
     private String eVocab;
     private String jVocab;
-    private int index;
+    private int index = -1;
 
     public QuizButton(String text, Skin skin){
         super(text, skin);
