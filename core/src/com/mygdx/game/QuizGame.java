@@ -3,10 +3,13 @@ package com.mygdx.game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 
 import java.util.ArrayList;
@@ -16,12 +19,18 @@ import java.util.Random;
  * Created by Jonneh on 07/07/2016.
  */
 public class QuizGame extends ScreenAdapter{
-    private final Skin skin = new Skin(Gdx.files.internal("uiskin.json"));
     private final Stage stage = new Stage(new StretchViewport(Settings.GAME_WIDTH, Settings.GAME_HEIGHT));
+    private final Table topTab = new Table();
     private final Table answerGrid = new Table();
+    private final Table questionGrid = new Table();
 
-    private final ArrayList<TextButton> answerButtons = new ArrayList<TextButton>(4);
-    private final ArrayList<QuizWord> answers = new ArrayList<QuizWord>(4);
+
+    // by using Button and casting to text or image would it be easier to create?
+    // maybe its just cleaner to have separate buttons / lists of buttons...
+    private QuizButton questionButton;
+
+    private final ArrayList<QuizButton> answerButtons = new ArrayList<QuizButton>(4);
+
     private final Random rand = new Random();
 
     LanguageApp game;
@@ -35,30 +44,61 @@ public class QuizGame extends ScreenAdapter{
         Gdx.input.setInputProcessor(stage);
         buildUI();
         buildAnswers();
-//      setQuestion();
-//
         setAnswers();
+        buildQuestion();
         setQuestion();
     }
 
     private void setQuestion() {
+        questionButton.setText(questionButton.getjVocab());
+    }
+
+    private void buildQuestion() {
+        QuizButton tempItem = answerButtons.get(rand.nextInt(answerButtons.size()));
+        questionButton.set(tempItem.geteVocab(), tempItem.getjVocab(), tempItem.getIndex());
+    }
+
+    private void setAnswers() {
         for (int i = 0; i < 4; i++
                 ){
-            answerButtons.get(i).setText(answers.get(i).getWord());
+          answerButtons.get(i).setText(answerButtons.get(i).geteVocab());
+          answerButtons.get(i).addListener(new ClickListener(){
+           @Override
+           // close but no cigar!!
+           public void clicked(InputEvent event, float x, float y){
+               QuizButton button = (QuizButton)event.getListenerActor();
+               checkAnswer(button);
+           }
+       });
         }
     }
 
+    private void checkAnswer(QuizButton button) {
+        if (button.getIndex() == questionButton.getIndex()){
+            // show success
+            // add score
+            newQuestion();
+        }else{
+            // no score. show fail (refer to failed button)
+        }
+    }
+
+    private void newQuestion() {
+        buildAnswers();
+        setAnswers();
+        buildQuestion();
+        setQuestion();
+    }
+
     private void buildAnswers() {
+        // need to check that same word isn't used
          for (int i = 0; i < 4; i++
                  ){
-             answers.add(new QuizWord());
+             VocabItem tempItem = Assets.vocab.get(rand.nextInt(Assets.vocab.size()));
+             answerButtons.get(i).set(tempItem.geteVocab(), tempItem.getjVocab(), tempItem.getIndex());
          }
      }
 
-    // need to check that same word isn't used.
-    private void setAnswers() {
-
-    }
 
     private void buildUI() {
 //       final TextButton button = new TextButton("Click me", skin);
@@ -72,16 +112,29 @@ public class QuizGame extends ScreenAdapter{
 //               button.setText("You clicked the button");
 //           }
 //       });
-        answerGrid.setFillParent(true);
-        answerGrid.defaults();
+//        answerGrid.setFillParent(true);
+        topTab.setPosition(Settings.GAME_WIDTH / 2, Settings.GAME_HEIGHT / 5);
+        topTab.setDebug(true);
+
+
+        answerGrid.center();
+        answerGrid.setPosition(Settings.GAME_WIDTH/2, Settings.GAME_HEIGHT/2 - Settings.GAME_HEIGHT/4);
 
 //     stage.addActor(button);
         for (int i = 0; i < 4; i++){
-            TextButton tempButton = (new TextButton("", skin));
+            QuizButton tempButton = (new QuizButton("", Assets.skin));
             answerButtons.add(tempButton);
             answerGrid.add(tempButton);
         }
+        questionButton = new QuizButton("", Assets.skin, "jButton");
+        questionButton.center();
+        questionGrid.setPosition(Settings.GAME_WIDTH/2,Settings.GAME_HEIGHT/2 + Settings.GAME_HEIGHT/4);
+        questionGrid.add(questionButton);
+
         stage.addActor(answerGrid);
+
+        stage.addActor(topTab);
+        stage.addActor(questionGrid);
     }
 
 
@@ -94,7 +147,7 @@ public class QuizGame extends ScreenAdapter{
 
     @Override
     public void resize(int width, int height) {
-        super.resize(width, height);
+        stage.getViewport().update(width, height, true);
     }
 
     @Override

@@ -24,7 +24,6 @@ import java.util.ArrayList;
  */
 
 public class MainMenu extends ScreenAdapter {
-    private final Skin skin = new Skin();
     private final Stage stage = new Stage(new StretchViewport(Settings.GAME_WIDTH, Settings.GAME_HEIGHT));
     private final ArrayList<Actor> mainButtons = new ArrayList<Actor>();
     private final ArrayList<Actor> optionsButtons = new ArrayList<Actor>();
@@ -44,17 +43,17 @@ public class MainMenu extends ScreenAdapter {
 
         //workaround for json problem. Not to stay here. New class, assets, or japaneseGenerator?
         // can programatically add all details to button before putting into json
-        TextButtonStyle jButton = new TextButtonStyle();
-        skin.add("jFont", Assets.jFont, BitmapFont.class);
-        jButton.font = skin.getFont("jFont");
-        skin.add("jButton", jButton, TextButtonStyle.class);
-        FileHandle fileHandle = Gdx.files.internal("uiskin.json");
-        FileHandle atlasFile = fileHandle.sibling("uiskin.atlas");
+  //     TextButtonStyle jButton = new TextButtonStyle();
+  //     Assets.skin.add("jFont", Assets.jFont, BitmapFont.class);
+  //     jButton.font = Assets.skin.getFont("jFont");
+  //     Assets.skin.add("jButton", jButton, TextButtonStyle.class);
+  //     FileHandle fileHandle = Gdx.files.internal("uiskin.json");
+  //     FileHandle atlasFile = fileHandle.sibling("uiskin.atlas");
 
-        if (atlasFile.exists()) {
-            skin.addRegions(new TextureAtlas(atlasFile));
-        }
-        skin.load(fileHandle);
+  //     if (atlasFile.exists()) {
+  //         Assets.skin.addRegions(new TextureAtlas(atlasFile));
+  //     }
+  //     Assets.skin.load(fileHandle);
 
         createMainButtons();
         createOptionButtons();
@@ -74,10 +73,11 @@ public class MainMenu extends ScreenAdapter {
 
         for (int i = 0; i< Assets.vocab.size(); i++
              ) {
-            contents.add(new TextButton(Assets.vocab.get(i).geteVocab(), skin));
-            contents.add(new TextButton(Assets.vocab.get(i).getjVocab(), skin, "jButton"));
+            contents.add(new TextButton(Assets.vocab.get(i).geteVocab(), Assets.skin));
+            contents.add(new TextButton(Assets.vocab.get(i).getjVocab(), Assets.skin, "jButton"));
             contents.row();
         }
+
 
         final ScrollPane scroller = new ScrollPane(contents);
         final Table frame = new Table();
@@ -88,16 +88,16 @@ public class MainMenu extends ScreenAdapter {
     }
 
     private void createOptionButtons() {
-        final TextButton testButton = new TextButton("Test", skin);
+        final TextButton testButton = new TextButton("Test", Assets.skin);
         testButton.setPosition(Settings.GAME_WIDTH/2 -50,Settings.GAME_HEIGHT/2 - 50);
         optionsButtons.add(testButton);
     }
 
     private void createTab() {
 
-        final TextButton mainMenuButton = new TextButton("Main", skin);
-        final TextButton vocabButton = new TextButton("Vocab", skin);
-        final TextButton optionsButton = new TextButton("Options", skin);
+        final TextButton mainMenuButton = new TextButton("Main", Assets.skin);
+        final TextButton vocabButton = new TextButton("Vocab", Assets.skin);
+        final TextButton optionsButton = new TextButton("Options", Assets.skin);
 
         Table tabMenu = new Table();
         tabMenu.defaults().height(TAB_HEIGHT);
@@ -154,8 +154,8 @@ public class MainMenu extends ScreenAdapter {
     }
 
     private void createMainButtons() {
-        final TextButton quizButton = new TextButton("QUIZ", skin);
-        final TextButton playButton = new TextButton("PLAY", skin);
+        final TextButton quizButton = new TextButton("QUIZ", Assets.skin);
+        final TextButton playButton = new TextButton("PLAY", Assets.skin);
         quizButton.setPosition(100, 200);
         playButton.setPosition(300, 200);
 
@@ -199,7 +199,6 @@ public class MainMenu extends ScreenAdapter {
     @Override
     public void dispose () {
         stage.dispose();
-        skin.dispose();
     }
 
 
