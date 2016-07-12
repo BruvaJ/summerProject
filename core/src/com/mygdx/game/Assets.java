@@ -3,6 +3,7 @@ package com.mygdx.game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -60,9 +61,14 @@ public class Assets {
     private static void makeSkin() {
         TextButton.TextButtonStyle jButton = new TextButton.TextButtonStyle();
         skin.add("jFont", jFont, BitmapFont.class);
+        skin.addRegions(new TextureAtlas(Gdx.files.internal("uiskin.atlas")));
         jButton.font = skin.getFont("jFont");
+        jButton.up = skin.newDrawable("default-round");
+
         skin.add("jButton", jButton, TextButton.TextButtonStyle.class);
         FileHandle fileHandle = Gdx.files.internal("uiskin.json");
+
+        // unecessary code
         FileHandle atlasFile = fileHandle.sibling("uiskin.atlas");
 
         if (atlasFile.exists()) {
