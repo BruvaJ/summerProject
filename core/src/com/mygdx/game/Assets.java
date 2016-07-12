@@ -2,10 +2,13 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 
 import java.util.ArrayList;
 
@@ -24,6 +27,7 @@ public class Assets {
    public static ArrayList<VocabItem> vocab = new ArrayList<VocabItem>();
    public static BitmapFont jFont;
    public static BitmapFont eFont;
+   public static final Skin skin = new Skin();
 
     public static Texture loadTexture(String file){
         return new Texture(Gdx.files.internal(file));
@@ -32,6 +36,8 @@ public class Assets {
     // need to use an assetmanager here　once loading in lots of data
     // http://stackoverflow.com/questions/32448088/how-do-i-make-textbuttons-using-libgdx/32452856#32452856
     public static void load() {
+
+
 
         mainMenuAtlas = new TextureAtlas(Gdx.files.internal("mainMenu.txt"));
         backgroundRegion = mainMenuAtlas.findRegion("background");
@@ -47,6 +53,22 @@ public class Assets {
 
         jFont = JapaneseGenerator.generate(jVocab);
         eFont = new BitmapFont();
+
+        makeSkin();
+    }
+
+    private static void makeSkin() {
+        TextButton.TextButtonStyle jButton = new TextButton.TextButtonStyle();
+        skin.add("jFont", jFont, BitmapFont.class);
+        jButton.font = skin.getFont("jFont");
+        skin.add("jButton", jButton, TextButton.TextButtonStyle.class);
+        FileHandle fileHandle = Gdx.files.internal("uiskin.json");
+        FileHandle atlasFile = fileHandle.sibling("uiskin.atlas");
+
+        if (atlasFile.exists()) {
+            skin.addRegions(new TextureAtlas(atlasFile));
+        }
+        skin.load(fileHandle);
     }
 
     // should this be a class?
