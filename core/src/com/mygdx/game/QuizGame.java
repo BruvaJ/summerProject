@@ -94,8 +94,6 @@ public class QuizGame extends ScreenAdapter{
 
     private void checkAnswer(QuizButton button) {
         questionsAnswered = questionsAnswered + 1;
-        Gdx.app.log("questions answered", Integer.toString(questionsAnswered));
-        Gdx.app.log("score", Integer.toString(score));
         if (button.getIndex() == questionButton.getIndex()){
             // show success
             score ++;
