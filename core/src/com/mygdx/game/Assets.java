@@ -3,7 +3,6 @@ package com.mygdx.game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -25,7 +24,7 @@ public class Assets {
 
    public static Sound clickSound;
 
-   public static ArrayList<VocabItem> vocab = new ArrayList<VocabItem>();
+   public static ArrayList<QuizItem> vocab = new ArrayList<QuizItem>();
    public static BitmapFont jFont;
    public static BitmapFont eFont;
    public static final Skin skin = new Skin();
@@ -81,7 +80,7 @@ public class Assets {
     private static void createVocabItems(String[] eVocab, String[] jVocab) {
         // error checking?  if eVocab.length == jVocab.length
         for(int i = 0; i < eVocab.length; i++){
-            vocab.add(new VocabItem(eVocab[i], jVocab[i], i));
+            vocab.add(new QuizItem(eVocab[i], jVocab[i], i));
         }
     }
 

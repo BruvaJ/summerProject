@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -26,6 +27,8 @@ public class QuizGame extends ScreenAdapter{
     private final static int E_J = 1;
     private final static int GAME_MODE = -1;
     private final static int PLAY_COUNT = 20;
+    private final static ArrayList<Integer> rands = new ArrayList<Integer>(Arrays.asList(-1,-1,-1,-1));
+    private static int newRand = -1;
     private int questionsAnswered = 0;
     private int score = 0;
 
@@ -82,7 +85,7 @@ public class QuizGame extends ScreenAdapter{
 
     private void buildQuestion() {
         QuizButton tempItem = answerButtons.get(rand.nextInt(answerButtons.size()));
-        questionButton.set(tempItem.geteVocab(), tempItem.getjVocab(), tempItem.getIndex());
+        questionButton.set(tempItem.getVocabItem());
     }
 
     private void setAnswers() {
@@ -118,13 +121,28 @@ public class QuizGame extends ScreenAdapter{
 
     private void buildAnswers() {
         // need to check that same word isn't used
+        for (int j=0; j<4; j++){
+            rands.set(j, -1);
+        }
+
+        for(int i=0; i<4; i++){
+            rands.set(i, createUniqueIndex());
+        }
+
          for (int i = 0; i < 4; i++
                  ){
-             VocabItem tempItem = Assets.vocab.get(rand.nextInt(Assets.vocab.size()));
-             answerButtons.get(i).set(tempItem.geteVocab(), tempItem.getjVocab(), tempItem.getIndex());
+             QuizItem tempItem = Assets.vocab.get(rands.get(i));
+             answerButtons.get(i).set(tempItem);
 //             checkUnique();
          }
      }
+
+    private int createUniqueIndex() {
+        newRand = (rand.nextInt(Assets.vocab.size()));
+        if(rands.contains(newRand))
+            createUniqueIndex();
+        return newRand;
+    }
 
 //  private void checkUnique() {
 //      // perhaps this should be more complicated when choosing vocab. depend on how many times its been seen before for example

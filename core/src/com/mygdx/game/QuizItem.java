@@ -5,13 +5,13 @@ package com.mygdx.game;
  */
 
 
-public class VocabItem {
+public class QuizItem {
     private String eVocab;
     private String jVocab;
     private int index;
     private int count;
 
-    public VocabItem(String eVocab, String jVocab, int index){
+    public QuizItem(String eVocab, String jVocab, int index){
         this.eVocab = eVocab;
         this.jVocab = jVocab;
         this.index = index;
