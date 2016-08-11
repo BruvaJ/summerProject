@@ -16,7 +16,6 @@ import java.util.ArrayList;
  * Created by Jonneh on 04/07/2016.
  */
 public class Assets {
-   public static Texture mainMenu;
    public static TextureAtlas mainMenuAtlas;
    public static TextureRegion backgroundRegion;
    public static TextureRegion quizRegion;

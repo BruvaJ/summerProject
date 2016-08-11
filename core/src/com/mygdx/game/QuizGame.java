@@ -10,9 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Created by Jonneh on 07/07/2016.
@@ -26,9 +24,10 @@ public class QuizGame extends ScreenAdapter{
     private final static int J_E = 0;
     private final static int E_J = 1;
     private final static int GAME_MODE = -1;
-    private final static int PLAY_COUNT = 20;
-    private final static ArrayList<Integer> rands = new ArrayList<Integer>(Arrays.asList(-1,-1,-1,-1));
-    private static int newRand = -1;
+    private final static int PLAY_COUNT = 10;
+    private static ArrayList<Integer> answerIndices = new ArrayList<Integer>();
+    private static List<QuizItem> answerSet = new ArrayList<QuizItem>();
+    private static int currentPos = 0;
     private int questionsAnswered = 0;
     private int score = 0;
 
@@ -51,9 +50,27 @@ public class QuizGame extends ScreenAdapter{
 
     private void create(){
         Gdx.input.setInputProcessor(stage);
+        createAnswerSet();
         buildUI();
         addListeners();
         play();
+    }
+
+    private void createAnswerSet() {
+        Collections.sort(Assets.vocab, QuizItem.CountComparator);
+        int lowestCount = Assets.vocab.get(0).getCount();
+        while(answerSet.size() < PLAY_COUNT){
+         for (QuizItem q: Assets.vocab
+               ) {
+            if(q.getCount() == lowestCount){
+                answerSet.add(q);
+            }else{
+                lowestCount++;
+                break;
+            }
+          }
+        }
+        createUniqueIndex();
     }
 
     private void addListeners() {
@@ -69,6 +86,7 @@ public class QuizGame extends ScreenAdapter{
             });
         }
     }
+
     private void play() {
         if(questionsAnswered < PLAY_COUNT) {
             newQuestion();
@@ -80,7 +98,7 @@ public class QuizGame extends ScreenAdapter{
     }
 
     private void setQuestion() {
-        questionButton.setText(questionButton.getjVocab());
+        questionButton.setText(questionButton.geteVocab());
     }
 
     private void buildQuestion() {
@@ -91,7 +109,7 @@ public class QuizGame extends ScreenAdapter{
     private void setAnswers() {
         for (int i = 0; i < 4; i++
                 ){
-          answerButtons.get(i).setText(answerButtons.get(i).geteVocab());
+          answerButtons.get(i).setText(answerButtons.get(i).getjVocab());
         }
     }
 
@@ -116,32 +134,25 @@ public class QuizGame extends ScreenAdapter{
     }
 
     private void setScore() {
-        scoreText.setText("Score:" + score + "/ 20");
+        scoreText.setText("Score:" + score + "/ 10");
     }
 
     private void buildAnswers() {
-        // need to check that same word isn't used
-        for (int j=0; j<4; j++){
-            rands.set(j, -1);
-        }
-
-        for(int i=0; i<4; i++){
-            rands.set(i, createUniqueIndex());
-        }
-
          for (int i = 0; i < 4; i++
                  ){
-             QuizItem tempItem = Assets.vocab.get(rands.get(i));
+             QuizItem tempItem = answerSet.get(answerIndices.get(i + currentPos));
+             answerSet.remove(answerIndices.get(i + currentPos));
              answerButtons.get(i).set(tempItem);
 //             checkUnique();
          }
+        currentPos += 4;
      }
 
-    private int createUniqueIndex() {
-        newRand = (rand.nextInt(Assets.vocab.size()));
-        if(rands.contains(newRand))
-            createUniqueIndex();
-        return newRand;
+    private void createUniqueIndex() {
+        for(int i = 0; i < answerSet.size(); i++){
+            answerIndices.add(i);
+        }
+        Collections.shuffle(answerIndices);
     }
 
 //  private void checkUnique() {
@@ -154,7 +165,6 @@ public class QuizGame extends ScreenAdapter{
 //          }
 //      }
 //  }
-
 
     private void buildUI() {
 //       final TextButton button = new TextButton("Click me", skin);
@@ -184,11 +194,11 @@ public class QuizGame extends ScreenAdapter{
 
 //     stage.addActor(button);
         for (int i = 0; i < 4; i++){
-            QuizButton tempButton = (new QuizButton("", Assets.skin));
+            QuizButton tempButton = (new QuizButton("", Assets.skin, "jButton"));
             answerButtons.add(tempButton);
             answerGrid.add(tempButton);
         }
-        questionButton = new QuizButton("", Assets.skin, "jButton");
+        questionButton = new QuizButton("", Assets.skin);
         questionButton.center();
         questionGrid.setPosition(Settings.GAME_WIDTH/2,Settings.GAME_HEIGHT/2 + Settings.GAME_HEIGHT/4);
         questionGrid.add(questionButton);
@@ -198,7 +208,6 @@ public class QuizGame extends ScreenAdapter{
         stage.addActor(scoreText);
         stage.addActor(questionGrid);
     }
-
 
     @Override
     public void render(float delta) {
