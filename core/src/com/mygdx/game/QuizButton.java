@@ -7,7 +7,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
  * Created by Jonneh on 07/07/2016.
  */
 public class QuizButton extends TextButton{
-    private QuizItem vocab;
+
+    private QuizItem quizItem;
 
     public QuizButton(String text, Skin skin){
         super(text, skin);
@@ -18,22 +19,26 @@ public class QuizButton extends TextButton{
     }
 
     public void set(QuizItem vocab) {
-        this.vocab = vocab;
+        this.quizItem = vocab;
     }
 
     public QuizItem getVocabItem(){
-        return vocab;
+        return quizItem;
     }
 
     public int getIndex() {
-        return vocab.getIndex();
+        return quizItem.getIndex();
     }
 
     public String geteVocab() {
-        return vocab.geteVocab();
+        return quizItem.geteVocab();
     }
 
     public String getjVocab() {
-        return vocab.getjVocab();
+        return quizItem.getjVocab();
+    }
+
+    public QuizItem getQuizItem() {
+        return quizItem;
     }
 }

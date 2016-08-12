@@ -35,9 +35,6 @@ public class Assets {
     // need to use an assetmanager here　once loading in lots of data
     // http://stackoverflow.com/questions/32448088/how-do-i-make-textbuttons-using-libgdx/32452856#32452856
     public static void load() {
-
-
-
         mainMenuAtlas = new TextureAtlas(Gdx.files.internal("mainMenu.txt"));
         backgroundRegion = mainMenuAtlas.findRegion("background");
         quizRegion = mainMenuAtlas.findRegion("quiz");
@@ -62,6 +59,7 @@ public class Assets {
         skin.addRegions(new TextureAtlas(Gdx.files.internal("uiskin.atlas")));
         jButton.font = skin.getFont("jFont");
         jButton.up = skin.newDrawable("default-round");
+        jButton.down = skin.newDrawable("default-round-down");
 
         skin.add("jButton", jButton, TextButton.TextButtonStyle.class);
         FileHandle fileHandle = Gdx.files.internal("uiskin.json");
@@ -82,7 +80,6 @@ public class Assets {
             vocab.add(new QuizItem(eVocab[i], jVocab[i], i));
         }
     }
-
 
     public static void playSound(Sound sound) {
         if(Settings.soundEnabled)

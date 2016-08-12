@@ -7,6 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 
@@ -35,6 +36,7 @@ public class QuizGame extends ScreenAdapter{
     // by using Button and casting to text or image would it be easier to create?
     private QuizButton questionButton;
 
+    private final TextButton backButton = new TextButton("<< ", Assets.skin);
     private final TextArea scoreText = new TextArea("", Assets.skin);
 
     private final ArrayList<QuizButton> answerButtons = new ArrayList<QuizButton>(4);
@@ -53,6 +55,7 @@ public class QuizGame extends ScreenAdapter{
         createAnswerSet();
         buildUI();
         addListeners();
+        setScore();
         play();
     }
 
@@ -78,13 +81,25 @@ public class QuizGame extends ScreenAdapter{
                 ) {
             b.addListener(new ClickListener() {
                 @Override
-                // close but no cigar!!
                 public void clicked(InputEvent event, float x, float y) {
                     QuizButton button = (QuizButton) event.getListenerActor();
                     checkAnswer(button);
                 }
             });
         }
+
+        backButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y){
+                saveAndQuit();
+            }
+        });
+    }
+
+    private void saveAndQuit() {
+        FileIO.saveFile("count.txt");
+        dispose();
+        game.setScreen(new MainMenu(game));
     }
 
     private void play() {
@@ -118,6 +133,8 @@ public class QuizGame extends ScreenAdapter{
         if (button.getIndex() == questionButton.getIndex()){
             // show success
             score ++;
+            setScore();
+            button.getQuizItem().upCount();
             play();
         }else{
             // no score. show fail (refer to failed button)
@@ -130,11 +147,10 @@ public class QuizGame extends ScreenAdapter{
         setAnswers();
         buildQuestion();
         setQuestion();
-        setScore();
     }
 
     private void setScore() {
-        scoreText.setText("Score:" + score + "/ 10");
+        scoreText.setText("Score:    " + score + "/" + PLAY_COUNT);
     }
 
     private void buildAnswers() {
@@ -180,6 +196,7 @@ public class QuizGame extends ScreenAdapter{
 //       });
 //        answerGrid.setFillParent(true);
         scoreText.setDisabled(true);
+        backButton.setPosition(0, Settings.GAME_HEIGHT - backButton.getHeight());
         scoreText.setPosition(Settings.GAME_WIDTH - scoreText.getWidth(), Settings.GAME_HEIGHT - scoreText.getHeight());
 //       topTab.add(scoreText);
 //       topTab.center();
@@ -206,7 +223,12 @@ public class QuizGame extends ScreenAdapter{
         stage.addActor(answerGrid);
 
         stage.addActor(scoreText);
+        stage.addActor(backButton);
         stage.addActor(questionGrid);
+    }
+
+    private void buildBackButton() {
+
     }
 
     @Override
@@ -243,10 +265,7 @@ public class QuizGame extends ScreenAdapter{
 
     @Override
     public void dispose() {
-        for (QuizButton b:answerButtons
-             ) {
-            b.isDisabled();
-        }
+        stage.dispose();
         super.dispose();
     }
 }

@@ -36,6 +36,10 @@ public class QuizItem implements Comparable<QuizItem>{
         return count;
     }
 
+    public void upCount(){
+        count++;
+    }
+
     public static Comparator<QuizItem> CountComparator = new Comparator<QuizItem>() {
         @Override
         public int compare(QuizItem o1, QuizItem o2) {
