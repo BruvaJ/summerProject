@@ -48,6 +48,14 @@ public class QuizItem implements Comparable<QuizItem>{
         }
     };
 
+    public static Comparator<QuizItem> IndexComparator = new Comparator<QuizItem>() {
+        @Override
+        public int compare(QuizItem o1, QuizItem o2) {
+            return o1.getIndex() - o2.getIndex();
+        }
+    };
+
+
     @Override
     public int compareTo(QuizItem o) {
         int compareCount = o.getCount();

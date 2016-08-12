@@ -97,6 +97,7 @@ public class QuizGame extends ScreenAdapter{
     }
 
     private void saveAndQuit() {
+        Collections.sort(Assets.vocab, QuizItem.IndexComparator);
         FileIO.saveFile("count.txt");
         dispose();
         game.setScreen(new MainMenu(game));
