@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.utils.StringBuilder;
 
 import java.util.ArrayList;
 
@@ -45,7 +46,8 @@ public class Assets {
         // at a later date there will be an extra file "Count" that may or may not be drawn. Different constructor can be used.
         String[] eVocab = FileIO.readFile("eVocab.txt").split("\n");
         String[] jVocab = FileIO.readFile("jVocab.txt").split("\n");
-        createVocabItems(eVocab, jVocab);
+        String[] vocabCount = FileIO.readFile("count.txt", eVocab.length).split("\n");
+        createVocabItems(eVocab, jVocab, vocabCount);
 
         jFont = JapaneseGenerator.generate(jVocab);
         eFont = new BitmapFont();
@@ -74,10 +76,10 @@ public class Assets {
     }
 
     // should this be a class?
-    private static void createVocabItems(String[] eVocab, String[] jVocab) {
+    private static void createVocabItems(String[] eVocab, String[] jVocab, String[] vocabCount) {
         // error checking?  if eVocab.length == jVocab.length
         for(int i = 0; i < eVocab.length; i++){
-            vocab.add(new QuizItem(eVocab[i], jVocab[i], i));
+            vocab.add(new QuizItem(eVocab[i], jVocab[i], Integer.parseInt(vocabCount[i]), i));
         }
     }
 

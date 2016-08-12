@@ -10,14 +10,15 @@ import java.util.Comparator;
 public class QuizItem implements Comparable<QuizItem>{
     private String eVocab;
     private String jVocab;
-    private int index;
     private int count;
+    private int index;
 
-    public QuizItem(String eVocab, String jVocab, int index){
+
+    public QuizItem(String eVocab, String jVocab, int count, int index){
         this.eVocab = eVocab;
         this.jVocab = jVocab;
+        this.count = count;
         this.index = index;
-        count = 0;
     }
 
     public String geteVocab() {

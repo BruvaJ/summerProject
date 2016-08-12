@@ -17,11 +17,29 @@ public class FileIO {
     }
 
 
-    // requires some error handling.... exists().
     public static String readFile(String path){
+        return readFile(path, 0);
+    }
+
+    // requires some error handling.... exists().
+    public static String readFile(String path, int size){
+        String vocabString;
         handle = Gdx.files.internal(path);
-        String vocabString = handle.readString();
+        if(handle.exists()) {
+            vocabString = handle.readString();
+            return vocabString;
+        }
+        vocabString = createCount(size);
         return vocabString;
+    }
+
+    // need to make an empty count file if not already in existence
+    private static String createCount(int size) {
+        StringBuilder sb = new StringBuilder();
+        for(int i = 0; i < size; i++){
+            sb.append("0\n");
+        }
+        return sb.toString();
     }
 
     public static void saveFile(String path) {
@@ -29,7 +47,7 @@ public class FileIO {
         StringBuilder sb = new StringBuilder();
         for(int i = 0; i < Assets.vocab.size(); i++){
             sb.append(Assets.vocab.get(i).getCount());
-            sb.append("/n");
+            sb.append("\n");
         }
         handle.writeString(sb.toString(), false);
     }
