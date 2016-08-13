@@ -11,7 +11,6 @@ import java.util.ArrayList;
  */
 public class FileIO {
     private static FileHandle handle;
-    private static String newCount;
 
     public FileIO(){
     }
