@@ -28,6 +28,7 @@ public class Assets {
    public static BitmapFont jFont;
    public static BitmapFont eFont;
    public static final Skin skin = new Skin();
+    public static Texture mySoldier;
 
     public static Texture loadTexture(String file){
         return new Texture(Gdx.files.internal(file));
@@ -42,6 +43,8 @@ public class Assets {
         playRegion = mainMenuAtlas.findRegion("play");
 
         clickSound = Gdx.audio.newSound(Gdx.files.internal("click.wav"));
+
+        mySoldier = new Texture(Gdx.files.internal("stickman.png"));
 
         // at a later date there will be an extra file "Count" that may or may not be drawn. Different constructor can be used.
         String[] eVocab = FileIO.readFile("eVocab.txt").split("\n");

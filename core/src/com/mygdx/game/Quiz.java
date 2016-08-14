@@ -26,12 +26,12 @@ public abstract class Quiz extends ScreenAdapter{
     private final static int J_E = 0;
     private final static int E_J = 1;
     private final static int GAME_MODE = -1;
-    private final static int PLAY_COUNT = 10;
+    protected final static int PLAY_COUNT = 10;
     private final static int GAME_RUNNING = 0;
     private final static int GAME_OVER = 1;
-    private static ArrayList<Integer> answerIndices = new ArrayList<Integer>();
-    private static List<QuizItem> answerSet = new ArrayList<QuizItem>();
-    private static int currentPos = 0;
+    protected static ArrayList<Integer> answerIndices;
+    protected static List<QuizItem> answerSet;
+    protected static int currentPos = 0;
     private int questionsAnswered = 0;
     protected int score = 0;
     private int gameState = 0;
@@ -41,7 +41,7 @@ public abstract class Quiz extends ScreenAdapter{
     private QuizButton questionButton;
 
     private final TextButton backButton = new TextButton("<< ", Assets.skin);
-    private final TextArea scoreText = new TextArea("", Assets.skin);
+    protected final TextArea scoreText = new TextArea("", Assets.skin);
 
     private final ArrayList<QuizButton> answerButtons = new ArrayList<QuizButton>(4);
 
@@ -56,8 +56,11 @@ public abstract class Quiz extends ScreenAdapter{
     }
 
     protected void create(){
+        answerIndices = new ArrayList<Integer>();
+        answerSet = new ArrayList<QuizItem>();
         Gdx.input.setInputProcessor(stage);
         createAnswerSet();
+        createUniqueIndex();
         buildUI();
         addListeners();
         setScore();
@@ -76,8 +79,6 @@ public abstract class Quiz extends ScreenAdapter{
         for(int i = 0; answerSet.size() < PLAY_COUNT * 4; i++){
             answerSet.add(Assets.vocab.get(i));
         }
-        Gdx.app.log("answer set size: ", String.valueOf(answerSet.size()));
-        createUniqueIndex();
     }
 
     protected void addListeners() {
@@ -103,6 +104,9 @@ public abstract class Quiz extends ScreenAdapter{
     protected void saveAndQuit() {
         Collections.sort(Assets.vocab, QuizItem.IndexComparator);
         FileIO.saveFile("count.txt");
+        answerSet.clear();
+        answerIndices.clear();
+        currentPos = 0;
         dispose();
         game.setScreen(new MainMenu(game));
     }
@@ -247,6 +251,10 @@ public abstract class Quiz extends ScreenAdapter{
         stage.addActor(scoreText);
         stage.addActor(backButton);
         stage.addActor(questionGrid);
+    }
+
+    public void setCurrentPos(int newValue){
+        currentPos = newValue;
     }
 
     @Override
