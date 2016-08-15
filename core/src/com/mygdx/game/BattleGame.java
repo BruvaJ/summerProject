@@ -15,12 +15,18 @@ class BattleGame extends Quiz{
     private ArrayList<Soldier> mySoldiers;
     private ArrayList<Soldier> enemySoldiers;
     private double currentTime = 0f;
+    private double myPenalty = 0f;
+    private boolean mustWait = false;
 
     private final static int SPAWN_RATE = 5;
+    private final static int PENALTY_TIME = 5;
     private final static int MY_START_POSITION = 5;
     private final static int ENEMY_START_POSITION = Settings.GAME_WIDTH-5;
     private final static int MY_SPEED = 1;
     private final static int ENEMY_SPEED = -1;
+
+    private int enemyLife;
+    private int myLife;
 
     BattleGame(LanguageApp game) {
         super(game);
@@ -29,6 +35,8 @@ class BattleGame extends Quiz{
     @Override
     protected void create() {
         super.create();
+        enemyLife = 3;
+        myLife = 3;
         batch = new SpriteBatch();
         mySoldiers = new ArrayList<Soldier>();
         enemySoldiers = new ArrayList<Soldier>();
@@ -63,6 +71,11 @@ class BattleGame extends Quiz{
 
     @Override
     public void render(float delta) {
+        if(mustWait && myPenalty < PENALTY_TIME) {
+            myPenalty += delta;
+        }else{
+            toggleButtons(true);
+        }
         super.render(delta);
         currentTime += delta;
         if(currentTime > SPAWN_RATE){
@@ -70,8 +83,30 @@ class BattleGame extends Quiz{
             resetTime();
         }
         batch.begin();
+        checkColision();
+        checkExitScreen();
         moveSoldiers();
         batch.end();
+    }
+
+    private void checkExitScreen() {
+        if(!mySoldiers.isEmpty() && mySoldiers.get(0).getCurrentPosition() > Settings.GAME_WIDTH) {
+            mySoldiers.remove(0);
+            enemyLife--;
+        }
+        if(!enemySoldiers.isEmpty() && enemySoldiers.get(0).getCurrentPosition() < 0) {
+            enemySoldiers.remove(0);
+            myLife--;
+        }
+    }
+
+    private void checkColision() {
+        if(!mySoldiers.isEmpty()&&!enemySoldiers.isEmpty()){
+            if(mySoldiers.get(0).getCurrentPosition() + mySoldiers.get(0).getWidth() > enemySoldiers.get(0).getCurrentPosition()) {
+                mySoldiers.remove(0);
+                enemySoldiers.remove(0);
+            }
+        }
     }
 
     private void moveSoldiers() {
@@ -91,6 +126,25 @@ class BattleGame extends Quiz{
     protected void buildUI() {
         super.buildUI();
         scoreText.setVisible(false);
+    }
+
+    @Override
+    protected void incorrectAnswer() {
+        setPenalty();
+        toggleButtons(false);
+    }
+
+    private void toggleButtons(boolean val) {
+        for (QuizButton b:answerButtons
+             ) {
+            b.setVisible(val);
+        }
+        questionButton.setVisible(val);
+    }
+
+    private void setPenalty() {
+        myPenalty = 0;
+        mustWait = true;
     }
 
     private void resetTime() {

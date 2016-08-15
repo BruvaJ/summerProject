@@ -9,6 +9,11 @@ public class QuizGame extends Quiz{
     }
 
     @Override
+    protected void incorrectAnswer() {
+        // do nothing
+    }
+
+    @Override
     protected void create() {
         super.create();
     }

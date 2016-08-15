@@ -38,12 +38,12 @@ public abstract class Quiz extends ScreenAdapter{
 
 
     // by using Button and casting to text or image would it be easier to create?
-    private QuizButton questionButton;
+    protected QuizButton questionButton;
 
     private final TextButton backButton = new TextButton("<< ", Assets.skin);
     protected final TextArea scoreText = new TextArea("", Assets.skin);
 
-    private final ArrayList<QuizButton> answerButtons = new ArrayList<QuizButton>(4);
+    protected final ArrayList<QuizButton> answerButtons = new ArrayList<QuizButton>(4);
 
     private final Random rand = new Random();
 
@@ -156,9 +156,12 @@ public abstract class Quiz extends ScreenAdapter{
             play();
         }else{
             // no score. show fail (refer to failed button)
+            incorrectAnswer();
             play();
         }
     }
+
+    protected abstract void incorrectAnswer();
 
     protected abstract void correctAnswer(QuizButton button);
 
