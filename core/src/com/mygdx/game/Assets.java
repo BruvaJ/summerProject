@@ -29,6 +29,8 @@ public class Assets {
    public static BitmapFont eFont;
    public static final Skin skin = new Skin();
     public static Texture mySoldier;
+    public static Texture enemySoldier;
+    public static Texture lifeCounter;
 
     public static Texture loadTexture(String file){
         return new Texture(Gdx.files.internal(file));
@@ -44,7 +46,9 @@ public class Assets {
 
         clickSound = Gdx.audio.newSound(Gdx.files.internal("click.wav"));
 
-        mySoldier = new Texture(Gdx.files.internal("stickman.png"));
+        mySoldier = new Texture(Gdx.files.internal("crusader.png"));
+        enemySoldier = new Texture(Gdx.files.internal("samurai.png"));
+        lifeCounter = new Texture(Gdx.files.internal("heart.png"));
 
         // at a later date there will be an extra file "Count" that may or may not be drawn. Different constructor can be used.
         String[] eVocab = FileIO.readFile("eVocab.txt").split("\n");

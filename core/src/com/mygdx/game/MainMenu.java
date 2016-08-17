@@ -23,7 +23,7 @@ import java.util.ArrayList;
  * Created by Jonneh on 04/07/2016.
  */
 
-public class MainMenu extends ScreenAdapter {
+class MainMenu extends ScreenAdapter {
     private final Stage stage = new Stage(new StretchViewport(Settings.GAME_WIDTH, Settings.GAME_HEIGHT));
     private final ArrayList<Actor> mainButtons = new ArrayList<Actor>();
     private final ArrayList<Actor> optionsButtons = new ArrayList<Actor>();
@@ -31,11 +31,14 @@ public class MainMenu extends ScreenAdapter {
 
     private final static int TAB_HEIGHT = 50;
 
-    LanguageApp game;
+    private LanguageApp game;
 
-    public MainMenu(LanguageApp game){
-        create();
+    private int gameDifficulty;
+
+    MainMenu(LanguageApp game){
         this.game = game;
+        gameDifficulty = 10;
+        create();
     }
 
     private void create() {
@@ -159,10 +162,8 @@ public class MainMenu extends ScreenAdapter {
         quizButton.setPosition(100, 200);
         playButton.setPosition(300, 200);
 
-        // convert x and y to absolute position?
         quizButton.addListener(new ChangeListener() {
             public void changed (ChangeEvent event, Actor actor) {
-                //System.out.println("Clicked! Is checked: " + button.isChecked());
                 dispose();
                 game.setScreen(new QuizGame(game));
             }
@@ -170,9 +171,8 @@ public class MainMenu extends ScreenAdapter {
 
         playButton.addListener(new ChangeListener() {
             public void changed (ChangeEvent event, Actor actor) {
-                //System.out.println("Clicked! Is checked: " + button.isChecked());
                 dispose();
-                game.setScreen(new BattleGame(game));
+                game.setScreen(new BattleGame(game, 10));
             }
         });
 
@@ -210,7 +210,6 @@ public class MainMenu extends ScreenAdapter {
 
     @Override
     public void resume() {
-
     }
 
     @Override

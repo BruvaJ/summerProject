@@ -40,7 +40,7 @@ public abstract class Quiz extends ScreenAdapter{
     // by using Button and casting to text or image would it be easier to create?
     protected QuizButton questionButton;
 
-    private final TextButton backButton = new TextButton("<< ", Assets.skin);
+    final TextButton backButton = new TextButton("<< ", Assets.skin);
     protected final TextArea scoreText = new TextArea("", Assets.skin);
 
     protected final ArrayList<QuizButton> answerButtons = new ArrayList<QuizButton>(4);
@@ -262,7 +262,7 @@ public abstract class Quiz extends ScreenAdapter{
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0, 0, 0, 0);
+        Gdx.gl.glClearColor(255/255f, 255/255f, 255/255f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.draw();
     }

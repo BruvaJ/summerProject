@@ -2,6 +2,9 @@ package com.mygdx.game;
 
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,32 +17,50 @@ class BattleGame extends Quiz{
     private SpriteBatch batch;
     private ArrayList<Soldier> mySoldiers;
     private ArrayList<Soldier> enemySoldiers;
+    private ArrayList<Image> myLifeSprites;
+    private ArrayList<Image> enemyLifeSprites;
     private double currentTime = 0f;
     private double myPenalty = 0f;
     private boolean mustWait = false;
 
-    private final static int SPAWN_RATE = 5;
+    private int spawnRate;
+    private int lifePositionY;
+    private final static int START_LIFE = 3;
     private final static int PENALTY_TIME = 5;
     private final static int MY_START_POSITION = 5;
     private final static int ENEMY_START_POSITION = Settings.GAME_WIDTH-5;
     private final static int MY_SPEED = 1;
     private final static int ENEMY_SPEED = -1;
 
-    private int enemyLife;
-    private int myLife;
+//    private int enemyLife;
+//    private int myLife;
 
-    BattleGame(LanguageApp game) {
+    BattleGame(LanguageApp game, int spawnRate) {
         super(game);
+        this.spawnRate = spawnRate;
     }
 
     @Override
     protected void create() {
         super.create();
-        enemyLife = 3;
-        myLife = 3;
         batch = new SpriteBatch();
+        myLifeSprites = new ArrayList<Image>();
+        enemyLifeSprites =  new ArrayList<Image>();
         mySoldiers = new ArrayList<Soldier>();
         enemySoldiers = new ArrayList<Soldier>();
+        lifePositionY = Settings.GAME_HEIGHT - (int)backButton.getHeight() - Assets.lifeCounter.getHeight();
+        createHealthBars(myLifeSprites, Assets.lifeCounter.getWidth() * (START_LIFE - 1), - Assets.lifeCounter.getWidth());
+        createHealthBars(enemyLifeSprites, Settings.GAME_WIDTH - Assets.lifeCounter.getWidth()*START_LIFE, Assets.lifeCounter.getWidth());
+        drawLife();
+    }
+
+    private void createHealthBars(ArrayList<Image> s, int x, int increment) {
+        for(int i = 0; i < START_LIFE; i++ ){
+            Image life = new Image(Assets.lifeCounter);
+            life.setPosition(x, lifePositionY);
+            s.add(life);
+            x += increment;
+        }
     }
 
     @Override
@@ -78,33 +99,70 @@ class BattleGame extends Quiz{
         }
         super.render(delta);
         currentTime += delta;
-        if(currentTime > SPAWN_RATE){
+        if(currentTime > spawnRate){
             spawnEnemy();
             resetTime();
         }
-        batch.begin();
-        checkColision();
+        checkCollision();
         checkExitScreen();
         moveSoldiers();
-        batch.end();
+    }
+
+    private void drawLife() {
+        for(int i = 0; i < myLifeSprites.size(); i ++){
+            stage.addActor(myLifeSprites.get(i));
+            stage.addActor(enemyLifeSprites.get(i));
+        }
     }
 
     private void checkExitScreen() {
         if(!mySoldiers.isEmpty() && mySoldiers.get(0).getCurrentPosition() > Settings.GAME_WIDTH) {
+            removeActor(mySoldiers.get(0));
             mySoldiers.remove(0);
-            enemyLife--;
+            loseHealth(enemyLifeSprites);
         }
-        if(!enemySoldiers.isEmpty() && enemySoldiers.get(0).getCurrentPosition() < 0) {
+        if(!enemySoldiers.isEmpty() && enemySoldiers.get(0).getCurrentPosition() < 0 - enemySoldiers.get(0).getWidth()) {
+            removeActor(enemySoldiers.get(0));
             enemySoldiers.remove(0);
-            myLife--;
+           loseHealth(myLifeSprites);
         }
     }
 
-    private void checkColision() {
+    private void loseHealth(ArrayList<Image> s) {
+        removeActor(s.get(0));
+        s.remove(0);
+    }
+
+    private void checkCollision() {
         if(!mySoldiers.isEmpty()&&!enemySoldiers.isEmpty()){
             if(mySoldiers.get(0).getCurrentPosition() + mySoldiers.get(0).getWidth() > enemySoldiers.get(0).getCurrentPosition()) {
+                Soldier myCollision = mySoldiers.get(0);
+                Soldier enemyCollision = enemySoldiers.get(0);
+                removeSoldiers(myCollision, enemyCollision);
                 mySoldiers.remove(0);
                 enemySoldiers.remove(0);
+            }
+        }
+    }
+
+    private void removeActor(Actor actor){
+        for(int i = 0; i < stage.getActors().size; i++){
+            if(stage.getActors().get(i).equals(actor)){
+                stage.getActors().get(i).remove();
+                break;
+            }
+        }
+    }
+
+    private void removeSoldiers(Soldier myCollision, Soldier enemySoldier) {
+        for (int i = 0; i < stage.getActors().size; i++) {
+            if(stage.getActors().get(i).equals(myCollision)){
+                stage.getActors().get(i).remove();
+                i--;
+            }
+            if(stage.getActors().get(i).equals(enemySoldier)){
+                stage.getActors().get(i).remove();
+                i--;
             }
         }
     }
@@ -113,12 +171,10 @@ class BattleGame extends Quiz{
         for (Soldier s:mySoldiers
                 ) {
             s.advance(MY_SPEED);
-            batch.draw(s, s.getCurrentPosition(), Settings.GAME_HEIGHT/2);
         }
         for (Soldier s:enemySoldiers
                 ) {
             s.advance(ENEMY_SPEED);
-            batch.draw(s, s.getCurrentPosition(), Settings.GAME_HEIGHT/2);
         }
     }
 
@@ -152,16 +208,21 @@ class BattleGame extends Quiz{
     }
 
     private void spawnEnemy() {
-        enemySoldiers.add(new Soldier(Assets.mySoldier, ENEMY_START_POSITION));
+        Soldier newEnemy = new Soldier(Assets.enemySoldier, ENEMY_START_POSITION,
+                Settings.GAME_HEIGHT / 2 - Assets.enemySoldier.getHeight() / 2);
+        enemySoldiers.add(newEnemy);
+        stage.addActor(newEnemy);
     }
 
     @Override
     protected void correctAnswer(QuizButton button) {
-        mySoldiers.add(new Soldier(Assets.mySoldier, MY_START_POSITION));
+        Soldier newSoldier = new Soldier(Assets.mySoldier, MY_START_POSITION,
+                Settings.GAME_HEIGHT/2 - Assets.mySoldier.getHeight() / 2);
+        mySoldiers.add(newSoldier);
+        stage.addActor(newSoldier);
     }
 
     private void resetCurrentPos(){
         setCurrentPos(0);
     }
-
 }
