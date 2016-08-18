@@ -1,10 +1,14 @@
 package com.mygdx.game;
 
 
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Align;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,7 +18,6 @@ import java.util.Collections;
  */
 
 class BattleGame extends Quiz{
-    private SpriteBatch batch;
     private ArrayList<Soldier> mySoldiers;
     private ArrayList<Soldier> enemySoldiers;
     private ArrayList<Image> myLifeSprites;
@@ -25,15 +28,12 @@ class BattleGame extends Quiz{
 
     private int spawnRate;
     private int lifePositionY;
+    private TextButton pauseButton;
     private final static int START_LIFE = 3;
     private final static int PENALTY_TIME = 5;
-    private final static int MY_START_POSITION = 5;
-    private final static int ENEMY_START_POSITION = Settings.GAME_WIDTH-5;
     private final static int MY_SPEED = 1;
     private final static int ENEMY_SPEED = -1;
-
-//    private int enemyLife;
-//    private int myLife;
+    private final static int GAME_PAUSED = 1;
 
     BattleGame(LanguageApp game, int spawnRate) {
         super(game);
@@ -43,7 +43,6 @@ class BattleGame extends Quiz{
     @Override
     protected void create() {
         super.create();
-        batch = new SpriteBatch();
         myLifeSprites = new ArrayList<Image>();
         enemyLifeSprites =  new ArrayList<Image>();
         mySoldiers = new ArrayList<Soldier>();
@@ -73,7 +72,7 @@ class BattleGame extends Quiz{
 
     @Override
     protected void newQuestion() {
-        if(answerSet.size() + currentPos >= answerSet.size()) {
+        if(currentPos >= answerSet.size()) {
             Collections.shuffle(answerIndices);
             resetCurrentPos();
         }
@@ -81,7 +80,7 @@ class BattleGame extends Quiz{
     }
 
     @Override
-    protected void saveAndQuit() {
+    protected void save() {
         // do nothing
     }
 
@@ -92,20 +91,26 @@ class BattleGame extends Quiz{
 
     @Override
     public void render(float delta) {
-        if(mustWait && myPenalty < PENALTY_TIME) {
-            myPenalty += delta;
-        }else{
-            toggleButtons(true);
-        }
         super.render(delta);
-        currentTime += delta;
-        if(currentTime > spawnRate){
-            spawnEnemy();
-            resetTime();
+        if(gameState == GAME_RUNNING) {
+            if (mustWait && myPenalty < PENALTY_TIME) {
+                myPenalty += delta;
+            } else {
+                toggleButtons(true);
+            }
+            super.render(delta);
+            currentTime += delta;
+            if (currentTime > spawnRate) {
+                spawnSoldier(Assets.enemySoldier, Settings.GAME_WIDTH,
+                        Settings.GAME_HEIGHT / 2 - Assets.enemySoldier.getHeight() / 2, enemySoldiers);
+                resetTime();
+            }
+            checkCollision();
+            checkExitScreen();
+            moveSoldiers();
+        }else{
+            // do nothing
         }
-        checkCollision();
-        checkExitScreen();
-        moveSoldiers();
     }
 
     private void drawLife() {
@@ -131,6 +136,10 @@ class BattleGame extends Quiz{
     private void loseHealth(ArrayList<Image> s) {
         removeActor(s.get(0));
         s.remove(0);
+        if(s.size() < 1) {
+            pauseGame();
+            endGame();
+        }
     }
 
     private void checkCollision() {
@@ -181,6 +190,9 @@ class BattleGame extends Quiz{
     @Override
     protected void buildUI() {
         super.buildUI();
+        pauseButton = new TextButton("||", Assets.skin);
+        pauseButton.setPosition(0 + backButton.getWidth(), Settings.GAME_HEIGHT - pauseButton.getHeight());
+        stage.addActor(pauseButton);
         scoreText.setVisible(false);
     }
 
@@ -207,22 +219,51 @@ class BattleGame extends Quiz{
         currentTime = 0;
     }
 
-    private void spawnEnemy() {
-        Soldier newEnemy = new Soldier(Assets.enemySoldier, ENEMY_START_POSITION,
-                Settings.GAME_HEIGHT / 2 - Assets.enemySoldier.getHeight() / 2);
-        enemySoldiers.add(newEnemy);
-        stage.addActor(newEnemy);
-    }
-
     @Override
     protected void correctAnswer(QuizButton button) {
-        Soldier newSoldier = new Soldier(Assets.mySoldier, MY_START_POSITION,
-                Settings.GAME_HEIGHT/2 - Assets.mySoldier.getHeight() / 2);
-        mySoldiers.add(newSoldier);
+        spawnSoldier(Assets.mySoldier, 0 - Assets.mySoldier.getWidth(),
+                Settings.GAME_HEIGHT/2 - Assets.mySoldier.getHeight() / 2, mySoldiers);
+    }
+
+    private void spawnSoldier(Texture t, int x, int y, ArrayList<Soldier> soldierGroup) {
+        Soldier newSoldier = new Soldier(t, x, y);
+        soldierGroup.add(newSoldier);
         stage.addActor(newSoldier);
     }
 
     private void resetCurrentPos(){
         setCurrentPos(0);
+    }
+
+
+    private void pauseGame() {
+        switch(gameState){
+            case GAME_RUNNING: gameState = GAME_PAUSED;
+                toggleButtons(false);
+                break;
+            case GAME_PAUSED: gameState = GAME_RUNNING;
+                toggleButtons(true);
+                break;
+        }
+    }
+
+    @Override
+    protected void addListeners() {
+        super.addListeners();
+        pauseButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y){
+                pauseGame();
+            }
+        });
+    }
+
+    @Override
+    protected void setCompletionMessage() {
+        if(myLifeSprites.isEmpty())
+            completionMessage.setText("Oh no! You lost :( Try again.");
+        if(enemyLifeSprites.isEmpty())
+            completionMessage.setText("Hooray! You won the game.");
+        super.setCompletionMessage();
     }
 }

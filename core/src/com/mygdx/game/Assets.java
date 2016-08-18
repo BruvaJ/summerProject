@@ -17,11 +17,6 @@ import java.util.ArrayList;
  * Created by Jonneh on 04/07/2016.
  */
 public class Assets {
-   public static TextureAtlas mainMenuAtlas;
-   public static TextureRegion backgroundRegion;
-   public static TextureRegion quizRegion;
-   public static TextureRegion playRegion;
-
    public static Sound clickSound;
 
    public static ArrayList<QuizItem> vocab = new ArrayList<QuizItem>();
@@ -39,11 +34,6 @@ public class Assets {
     // need to use an assetmanager here　once loading in lots of data
     // http://stackoverflow.com/questions/32448088/how-do-i-make-textbuttons-using-libgdx/32452856#32452856
     public static void load() {
-        mainMenuAtlas = new TextureAtlas(Gdx.files.internal("mainMenu.txt"));
-        backgroundRegion = mainMenuAtlas.findRegion("background");
-        quizRegion = mainMenuAtlas.findRegion("quiz");
-        playRegion = mainMenuAtlas.findRegion("play");
-
         clickSound = Gdx.audio.newSound(Gdx.files.internal("click.wav"));
 
         mySoldier = new Texture(Gdx.files.internal("crusader.png"));

@@ -172,7 +172,7 @@ class MainMenu extends ScreenAdapter {
         playButton.addListener(new ChangeListener() {
             public void changed (ChangeEvent event, Actor actor) {
                 dispose();
-                game.setScreen(new BattleGame(game, 10));
+                game.setScreen(new BattleGame(game, 5));
             }
         });
 

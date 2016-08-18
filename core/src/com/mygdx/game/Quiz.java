@@ -10,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 
 import java.util.*;
@@ -18,7 +19,7 @@ import java.util.*;
  * Created by Jonneh on 07/07/2016.
  */
 public abstract class Quiz extends ScreenAdapter{
-    protected final Stage stage = new Stage(new StretchViewport(Settings.GAME_WIDTH, Settings.GAME_HEIGHT));
+    final Stage stage = new Stage(new StretchViewport(Settings.GAME_WIDTH, Settings.GAME_HEIGHT));
     private final Table topTab = new Table();
     private final Table answerGrid = new Table();
     private final Table questionGrid = new Table();
@@ -26,24 +27,26 @@ public abstract class Quiz extends ScreenAdapter{
     private final static int J_E = 0;
     private final static int E_J = 1;
     private final static int GAME_MODE = -1;
-    protected final static int PLAY_COUNT = 10;
-    private final static int GAME_RUNNING = 0;
-    private final static int GAME_OVER = 1;
-    protected static ArrayList<Integer> answerIndices;
-    protected static List<QuizItem> answerSet;
-    protected static int currentPos = 0;
+    final static int PLAY_COUNT = 10;
+    final static int GAME_RUNNING = 0;
+    final static int GAME_OVER = 2;
+    static ArrayList<Integer> answerIndices;
+    static List<QuizItem> answerSet;
+    static int currentPos = 0;
     private int questionsAnswered = 0;
-    protected int score = 0;
-    private int gameState = 0;
+    int score = 0;
+    int gameState = 0;
+
+    Label completionMessage;
 
 
     // by using Button and casting to text or image would it be easier to create?
-    protected QuizButton questionButton;
+    QuizButton questionButton;
 
     final TextButton backButton = new TextButton("<< ", Assets.skin);
-    protected final TextArea scoreText = new TextArea("", Assets.skin);
+    final TextArea scoreText = new TextArea("", Assets.skin);
 
-    protected final ArrayList<QuizButton> answerButtons = new ArrayList<QuizButton>(4);
+    final ArrayList<QuizButton> answerButtons = new ArrayList<QuizButton>(4);
 
     private final Random rand = new Random();
 
@@ -67,11 +70,16 @@ public abstract class Quiz extends ScreenAdapter{
         play();
     }
 
-    protected void buildCompletionMessage() {
-        Label completionMessage = new Label("Good job, you got " + score + " out of " + PLAY_COUNT, Assets.skin);
-        completionMessage.setPosition(Settings.GAME_WIDTH/2 - completionMessage.getWidth()/2,
-                Settings.GAME_HEIGHT/2 - completionMessage.getHeight()/2);
+    private void buildCompletionMessage() {
+        completionMessage = new Label("", Assets.skin);
+        setCompletionMessage();
         stage.addActor(completionMessage);
+    }
+
+    protected void setCompletionMessage(){
+        completionMessage.setAlignment(Align.center);
+        completionMessage.setPosition(Settings.GAME_WIDTH/2,
+                Settings.GAME_HEIGHT/2);
     }
 
     protected void createAnswerSet() {
@@ -96,14 +104,15 @@ public abstract class Quiz extends ScreenAdapter{
         backButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y){
-                saveAndQuit();
+                save();
+                quit();
             }
         });
     }
 
-    protected void saveAndQuit() {
-        Collections.sort(Assets.vocab, QuizItem.IndexComparator);
-        FileIO.saveFile("count.txt");
+
+
+    private void quit() {
         answerSet.clear();
         answerIndices.clear();
         currentPos = 0;
@@ -111,11 +120,15 @@ public abstract class Quiz extends ScreenAdapter{
         game.setScreen(new MainMenu(game));
     }
 
+    protected void save() {
+        Collections.sort(Assets.vocab, QuizItem.IndexComparator);
+        FileIO.saveFile("count.txt");
+    }
+
     protected void play() {
         if(gameState == GAME_RUNNING) {
             newQuestion();
-        }
-        else{
+        }else{
             endGame();
         }
     }
@@ -125,8 +138,8 @@ public abstract class Quiz extends ScreenAdapter{
         stage.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-
-                saveAndQuit();
+                save();
+                quit();
             }
         });
     }
@@ -185,6 +198,7 @@ public abstract class Quiz extends ScreenAdapter{
     protected void buildAnswers() {
         for (int i = 0; i < 4; i++
                 ){
+            Gdx.app.log("currentPos",String.valueOf(currentPos + i));
             QuizItem tempItem = answerSet.get(answerIndices.get(i + currentPos));
             answerSet.remove(answerIndices.get(i + currentPos));
             answerButtons.get(i).set(tempItem);
@@ -226,6 +240,7 @@ public abstract class Quiz extends ScreenAdapter{
 //        answerGrid.setFillParent(true);
         scoreText.setDisabled(true);
         backButton.setPosition(0, Settings.GAME_HEIGHT - backButton.getHeight());
+
         scoreText.setPosition(Settings.GAME_WIDTH - scoreText.getWidth(), Settings.GAME_HEIGHT - scoreText.getHeight());
 //       topTab.add(scoreText);
 //       topTab.center();
@@ -253,6 +268,7 @@ public abstract class Quiz extends ScreenAdapter{
 
         stage.addActor(scoreText);
         stage.addActor(backButton);
+
         stage.addActor(questionGrid);
     }
 

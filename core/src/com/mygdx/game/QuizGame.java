@@ -24,4 +24,10 @@ public class QuizGame extends Quiz{
         setScore();
         button.getQuizItem().upCount();
     }
+
+    @Override
+    protected void setCompletionMessage() {
+        completionMessage.setText("Good job, you got " + score + " out of " + PLAY_COUNT);
+        super.setCompletionMessage();
+    }
 }
