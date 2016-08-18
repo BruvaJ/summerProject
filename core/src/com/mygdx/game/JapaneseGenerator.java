@@ -17,9 +17,6 @@ import java.util.Set;
  */
 public class JapaneseGenerator {
     private static String FONT_CHARS;
-    public static String FONT_PATH;
-    public static FreeTypeFontGenerator generator;
-    public static FreeTypeFontGenerator.FreeTypeFontParameter parameter;
 
 
 

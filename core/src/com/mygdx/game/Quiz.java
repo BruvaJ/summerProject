@@ -183,7 +183,6 @@ public abstract class Quiz extends ScreenAdapter{
         if(questionsAnswered >= PLAY_COUNT)
             gameState = GAME_OVER;
     }
-
     protected void newQuestion() {
         buildAnswers();
         setAnswers();
@@ -202,7 +201,7 @@ public abstract class Quiz extends ScreenAdapter{
             QuizItem tempItem = answerSet.get(answerIndices.get(i + currentPos));
             answerSet.remove(answerIndices.get(i + currentPos));
             answerButtons.get(i).set(tempItem);
-//             checkUnique();
+//             checkUnique(
         }
         currentPos += 4;
     }
