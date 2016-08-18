@@ -1,6 +1,7 @@
 package com.mygdx.game;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
@@ -33,11 +34,8 @@ class MainMenu extends ScreenAdapter {
 
     private LanguageApp game;
 
-    private int gameDifficulty;
-
     MainMenu(LanguageApp game){
         this.game = game;
-        gameDifficulty = 10;
         create();
     }
 
