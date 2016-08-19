@@ -48,6 +48,11 @@ abstract class Quiz extends ScreenAdapter{
 
     private final Random rand = new Random();
 
+    final static boolean NOT_LOOPING = false;
+    final static boolean IS_LOOPING = true;
+
+    boolean musicState;
+
     LanguageApp game;
 
     public Quiz(LanguageApp game){
@@ -57,6 +62,7 @@ abstract class Quiz extends ScreenAdapter{
     }
 
     protected void create(){
+        startMusic();
         answerIndices = new ArrayList<Integer>();
         answerSet = new ArrayList<QuizItem>();
         Gdx.input.setInputProcessor(stage);
@@ -67,6 +73,8 @@ abstract class Quiz extends ScreenAdapter{
         setScore();
         play();
     }
+
+    protected abstract void startMusic();
 
     private void buildCompletionMessage() {
         completionMessage = new Label("", Assets.skin);
@@ -116,8 +124,6 @@ abstract class Quiz extends ScreenAdapter{
         });
     }
 
-
-
     private void quit() {
         answerSet.clear();
         answerIndices.clear();
@@ -140,6 +146,7 @@ abstract class Quiz extends ScreenAdapter{
     }
 
     protected void endGame() {
+        endMusic();
         buildCompletionMessage();
         stage.addListener(new ClickListener() {
             @Override
@@ -149,6 +156,8 @@ abstract class Quiz extends ScreenAdapter{
             }
         });
     }
+
+    protected abstract void endMusic();
 
     private void setQuestion() {
         questionButton.setText(questionButton.geteVocab());
@@ -206,11 +215,9 @@ abstract class Quiz extends ScreenAdapter{
     private void buildAnswers() {
         for (int i = 0; i < 4; i++
                 ){
-            Gdx.app.log("currentPos",String.valueOf(currentPos + i));
             QuizItem tempItem = answerSet.get(answerIndices.get(i + currentPos));
             answerSet.remove(answerIndices.get(i + currentPos));
             answerButtons.get(i).set(tempItem);
-//             checkUnique();
         }
         currentPos += 4;
     }
@@ -222,46 +229,13 @@ abstract class Quiz extends ScreenAdapter{
         Collections.shuffle(answerIndices);
     }
 
-//  private void checkUnique() {
-//      // perhaps this should be more complicated when choosing vocab. depend on how many times its been seen before for example
-//      for (int i = 0; i < 4; i++) {
-//          for (QuizButton answer : answerButtons
-//                  ) {
-//              if (answerButtons.get(i).getIndex() == answer.getIndex())
-//                  buildAnswers();
-//          }
-//      }
-//  }
-
     protected void buildUI() {
-//       final TextButton button = new TextButton("Click me", skin);
-//       button.setWidth(200f);
-//       button.setHeight(20f);
-//       button.setPosition(Gdx.graphics.getWidth() /2 - 100f, Gdx.graphics.getHeight()/2 - 10f);
-
-//       button.addListener(new ClickListener(){
-//           @Override
-//           public void clicked(InputEvent event, float x, float y){
-//               button.setText("You clicked the button");
-//           }
-//       });
-//        answerGrid.setFillParent(true);
         scoreText.setDisabled(true);
         backButton.setPosition(0, Settings.GAME_HEIGHT - backButton.getHeight());
-
         scoreText.setPosition(Settings.GAME_WIDTH - scoreText.getWidth(), Settings.GAME_HEIGHT - scoreText.getHeight());
-//       topTab.add(scoreText);
-//       topTab.center();
-//       topTab.setPosition(Settings.GAME_WIDTH / 2, Settings.GAME_HEIGHT - scoreText.getHeight());
-//       topTab.setWidth(Settings.GAME_WIDTH);
-//       topTab.setDebug(true);
-
-
-
         answerGrid.center();
         answerGrid.setPosition(Settings.GAME_WIDTH/2, Settings.GAME_HEIGHT/2 - Settings.GAME_HEIGHT/4);
 
-//     stage.addActor(button);
         for (int i = 0; i < 4; i++){
             QuizButton tempButton = (new QuizButton("", Assets.skin, "jButton"));
             answerButtons.add(tempButton);
@@ -273,10 +247,8 @@ abstract class Quiz extends ScreenAdapter{
         questionGrid.add(questionButton);
 
         stage.addActor(answerGrid);
-
         stage.addActor(scoreText);
         stage.addActor(backButton);
-
         stage.addActor(questionGrid);
     }
 

@@ -114,12 +114,14 @@ class MainMenu extends ScreenAdapter {
 
         optionsButton.addListener(new ChangeListener() {
             public void changed (ChangeEvent event, Actor actor) {
+                menuSelection();
                 setVisibility(optionsButtons, mainButtons, vocabButtons);
             }
         });
 
         mainMenuButton.addListener(new ChangeListener() {
             public void changed (ChangeEvent event, Actor actor) {
+                menuSelection();
                 setVisibility(mainButtons, optionsButtons, vocabButtons);
             }
         });
@@ -127,9 +129,14 @@ class MainMenu extends ScreenAdapter {
         vocabButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                menuSelection();
                 setVisibility(vocabButtons, mainButtons, optionsButtons);
             }
         });
+    }
+
+    private void menuSelection() {
+        Assets.playSound(Assets.selection);
     }
 
     private void setVisibility(ArrayList<Actor>onButtons, ArrayList<Actor> offButtons1, ArrayList<Actor> offButtons2) {

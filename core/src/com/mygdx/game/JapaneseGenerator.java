@@ -17,6 +17,9 @@ import java.util.Set;
  */
 public class JapaneseGenerator {
     private static String FONT_CHARS;
+    public static String FONT_PATH;
+    public static FreeTypeFontGenerator generator;
+    public static FreeTypeFontGenerator.FreeTypeFontParameter parameter;
 
 
 
@@ -34,7 +37,7 @@ public class JapaneseGenerator {
         FONT_CHARS = uniqueChars(s);
 
         final String FONT_PATH = "chichiya.ttf";
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal(FONT_PATH));
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.local(FONT_PATH));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.characters = FONT_CHARS;
         parameter.size = 15;

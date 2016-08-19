@@ -8,13 +8,11 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class LanguageApp extends Game {
-	public SpriteBatch batcher;
-	
+
 	@Override
 	public void create () {
-		batcher = new SpriteBatch();
-//		Settings.load();
 		Assets.load();
+		Assets.playSound(Assets.start);
 		setScreen(new MainMenu(this));
 	}
 

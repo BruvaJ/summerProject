@@ -1,6 +1,7 @@
 package com.mygdx.game;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
@@ -17,8 +18,6 @@ import java.util.ArrayList;
  * Created by Jonneh on 04/07/2016.
  */
 public class Assets {
-   public static Sound clickSound;
-
    public static ArrayList<QuizItem> vocab = new ArrayList<QuizItem>();
    public static BitmapFont jFont;
    public static BitmapFont eFont;
@@ -26,6 +25,17 @@ public class Assets {
     public static Texture mySoldier;
     public static Texture enemySoldier;
     public static Texture lifeCounter;
+    public static Sound correct;
+    public static Sound incorrect;
+    public static Sound fight;
+    public static Sound fanfare;
+    public static Sound selection;
+    public static Sound start;
+    public static Sound victory;
+    public static Sound gameOver;
+    public static Music battle;
+    public static Music quiz;
+
 
     public static Texture loadTexture(String file){
         return new Texture(Gdx.files.internal(file));
@@ -34,7 +44,19 @@ public class Assets {
     // need to use an assetmanager here　once loading in lots of data
     // http://stackoverflow.com/questions/32448088/how-do-i-make-textbuttons-using-libgdx/32452856#32452856
     public static void load() {
-        clickSound = Gdx.audio.newSound(Gdx.files.internal("click.wav"));
+        correct = Gdx.audio.newSound(Gdx.files.internal("sounds/correct.wav"));
+        incorrect = Gdx.audio.newSound(Gdx.files.internal("sounds/incorrect.wav"));
+        fight = Gdx.audio.newSound(Gdx.files.internal("sounds/fight.wav"));
+        selection = Gdx.audio.newSound(Gdx.files.internal("sounds/selection.wav"));
+        start = Gdx.audio.newSound(Gdx.files.internal("sounds/start.wav"));
+        fanfare = Gdx.audio.newSound(Gdx.files.internal("sounds/fanfare.wav"));
+        gameOver = Gdx.audio.newSound(Gdx.files.internal("sounds/gameOver.wav"));
+        victory = Gdx.audio.newSound(Gdx.files.internal("sounds/victory.wav"));
+
+        battle = Gdx.audio.newMusic(Gdx.files.internal("sounds/battle.wav"));
+        battle.setLooping(true);
+        quiz = Gdx.audio.newMusic(Gdx.files.internal("sounds/quiz.wav"));
+        quiz.setLooping(true);
 
         mySoldier = new Texture(Gdx.files.internal("crusader.png"));
         enemySoldier = new Texture(Gdx.files.internal("samurai.png"));
@@ -83,6 +105,11 @@ public class Assets {
     public static void playSound(Sound sound) {
         if(Settings.soundEnabled)
             sound.play(1);
+    }
+
+    public static void loopMusic(Music music, boolean looping){
+        if(Settings.musicEnabled)
+            music.setLooping(looping);
     }
 }
 

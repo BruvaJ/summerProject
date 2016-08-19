@@ -8,4 +8,5 @@ public class Settings {
     public final static int GAME_HEIGHT = 320;
     public final static int GAME_WIDTH = 480;
 
+    public static boolean musicEnabled = true;
 }

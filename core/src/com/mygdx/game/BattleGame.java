@@ -63,6 +63,12 @@ class BattleGame extends Quiz{
     }
 
     @Override
+    protected void checkAnswer(QuizButton selection) {
+        super.checkAnswer(selection);
+        play();
+    }
+
+    @Override
     protected void createAnswerSet() {
         Collections.shuffle(Assets.vocab);
         for(int i = 0; answerSet.size() < Assets.vocab.size() ; i++){
@@ -145,6 +151,7 @@ class BattleGame extends Quiz{
     private void checkCollision() {
         if(!mySoldiers.isEmpty()&&!enemySoldiers.isEmpty()){
             if(mySoldiers.get(0).getCurrentPosition() + mySoldiers.get(0).getWidth() > enemySoldiers.get(0).getCurrentPosition()) {
+                Assets.playSound(Assets.fight);
                 Soldier myCollision = mySoldiers.get(0);
                 Soldier enemyCollision = enemySoldiers.get(0);
                 removeSoldiers(myCollision, enemyCollision);
@@ -197,17 +204,11 @@ class BattleGame extends Quiz{
     }
 
     @Override
-    protected void incorrectAnswer() {
+    protected void incorrectAnswer(QuizButton selection) {
+        super.incorrectAnswer(selection);
         setPenalty();
         toggleButtons(false);
-    }
 
-    private void toggleButtons(boolean val) {
-        for (QuizButton b:answerButtons
-             ) {
-            b.setVisible(val);
-        }
-        questionButton.setVisible(val);
     }
 
     private void setPenalty() {
@@ -220,8 +221,9 @@ class BattleGame extends Quiz{
     }
 
     @Override
-    protected void correctAnswer(QuizButton button) {
-        spawnSoldier(Assets.mySoldier, 0 - Assets.mySoldier.getWidth(),
+    protected void correctAnswer(QuizButton selection) {
+        super.correctAnswer(selection);
+        spawnSoldier(Assets.mySoldier, 0 - Assets.mySoldier.getWidth() / 2,
                 Settings.GAME_HEIGHT/2 - Assets.mySoldier.getHeight() / 2, mySoldiers);
     }
 
@@ -260,10 +262,25 @@ class BattleGame extends Quiz{
 
     @Override
     protected void setCompletionMessage() {
-        if(myLifeSprites.isEmpty())
+        if(myLifeSprites.isEmpty()) {
             completionMessage.setText("Oh no! You lost :( Try again.");
-        if(enemyLifeSprites.isEmpty())
+            Assets.playSound(Assets.gameOver);
+        }else if(enemyLifeSprites.isEmpty()) {
             completionMessage.setText("Hooray! You won the game.");
+            Assets.playSound(Assets.victory);
+        }else{
+            // do nothing
+        }
         super.setCompletionMessage();
+    }
+
+    @Override
+    protected void startMusic() {
+        Assets.battle.play();
+    }
+
+    @Override
+    protected void endMusic() {
+        Assets.battle.stop();
     }
 }
