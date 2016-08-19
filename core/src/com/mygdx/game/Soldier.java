@@ -12,10 +12,12 @@ public class Soldier extends Image {
         return currentPosition;
     }
 
-    int currentPosition;
+    private int currentPosition;
+    private int health;
 
-    public Soldier(Texture texture, int x, int y) {
+    public Soldier(Texture texture, int x, int y, int health) {
         super(texture);
+        this.health = health;
         this.setPosition(x, y);
         this.currentPosition = x;
     }
@@ -23,5 +25,13 @@ public class Soldier extends Image {
     public void advance(int speed){
         currentPosition+= speed;
         super.setPosition(currentPosition, this.getY());
+    }
+
+    void loseHealth(){
+        health += -1;
+    }
+
+    public int getHealth() {
+        return health;
     }
 }

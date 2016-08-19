@@ -23,8 +23,10 @@ public class Assets {
    public static BitmapFont eFont;
    public static final Skin skin = new Skin();
     public static Texture mySoldier;
+    public static Texture myBigSoldier;
     public static Texture enemySoldier;
     public static Texture lifeCounter;
+    public static Texture powerUp;
     public static Sound correct;
     public static Sound incorrect;
     public static Sound fight;
@@ -35,6 +37,7 @@ public class Assets {
     public static Sound gameOver;
     public static Music battle;
     public static Music quiz;
+
 
 
     public static Texture loadTexture(String file){
@@ -59,8 +62,10 @@ public class Assets {
         quiz.setLooping(true);
 
         mySoldier = new Texture(Gdx.files.internal("crusader.png"));
+        myBigSoldier = new Texture(Gdx.files.internal("cavalry.png"));
         enemySoldier = new Texture(Gdx.files.internal("samurai.png"));
         lifeCounter = new Texture(Gdx.files.internal("heart.png"));
+        powerUp = new Texture(Gdx.files.internal("powerUp.png"));
 
         // at a later date there will be an extra file "Count" that may or may not be drawn. Different constructor can be used.
         String[] eVocab = FileIO.readFile("eVocab.txt").split("\n");

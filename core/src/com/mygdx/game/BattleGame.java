@@ -1,14 +1,16 @@
 package com.mygdx.game;
 
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.utils.Align;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,18 +24,26 @@ class BattleGame extends Quiz{
     private ArrayList<Soldier> enemySoldiers;
     private ArrayList<Image> myLifeSprites;
     private ArrayList<Image> enemyLifeSprites;
+    private ArrayList<Sprite> powerUps;
+    private int streak;
     private double currentTime = 0f;
     private double myPenalty = 0f;
     private boolean mustWait = false;
 
     private int spawnRate;
-    private int lifePositionY;
     private TextButton pauseButton;
-    private final static int START_LIFE = 3;
+    private boolean bigSoldier;
+
+    private final static boolean NOT_READY = false;
+    private final static boolean READY = true;
+    private final static int START_LIFE = 2;
     private final static int PENALTY_TIME = 5;
     private final static int MY_SPEED = 1;
     private final static int ENEMY_SPEED = -1;
     private final static int GAME_PAUSED = 1;
+    private final static int MAX_STREAK = 3;
+    private Batch batch;
+
 
     BattleGame(LanguageApp game, int spawnRate) {
         super(game);
@@ -43,20 +53,47 @@ class BattleGame extends Quiz{
     @Override
     protected void create() {
         super.create();
+        resetStreak();
+
+        bigSoldier = NOT_READY;
+        batch = new SpriteBatch();
         myLifeSprites = new ArrayList<Image>();
         enemyLifeSprites =  new ArrayList<Image>();
+        powerUps = new ArrayList<Sprite>();
         mySoldiers = new ArrayList<Soldier>();
         enemySoldiers = new ArrayList<Soldier>();
-        lifePositionY = Settings.GAME_HEIGHT - (int)backButton.getHeight() - Assets.lifeCounter.getHeight();
-        createHealthBars(myLifeSprites, Assets.lifeCounter.getWidth() * (START_LIFE - 1), - Assets.lifeCounter.getWidth());
-        createHealthBars(enemyLifeSprites, Settings.GAME_WIDTH - Assets.lifeCounter.getWidth()*START_LIFE, Assets.lifeCounter.getWidth());
+        int lifeY = Settings.GAME_HEIGHT - (int)backButton.getHeight() - Assets.lifeCounter.getHeight();
+        createPowerUps();
+        createHealthBars(myLifeSprites,
+                Assets.lifeCounter.getWidth() * (START_LIFE - 1),
+                lifeY,
+                - Assets.lifeCounter.getWidth());
+        createHealthBars(enemyLifeSprites,
+                Settings.GAME_WIDTH - Assets.lifeCounter.getWidth()*START_LIFE,
+                lifeY,
+                Assets.lifeCounter.getWidth());
         drawLife();
     }
 
-    private void createHealthBars(ArrayList<Image> s, int x, int increment) {
+    private void createPowerUps() {
+        int powerUpX = 0;
+        int powerUpY = Settings.GAME_HEIGHT - (int)backButton.getHeight() - Assets.lifeCounter.getHeight() - Assets.powerUp.getHeight();
+        for(int i = 0; i<MAX_STREAK; i++){
+            Sprite powerUp = new Sprite(Assets.powerUp);
+            powerUp.setPosition(powerUpX, powerUpY);
+            powerUps.add(powerUp);
+            powerUpX += Assets.powerUp.getWidth();
+        }
+    }
+
+    private void resetStreak() {
+        streak = 0;
+    }
+
+    private void createHealthBars(ArrayList<Image> s, int x, int y, int increment) {
         for(int i = 0; i < START_LIFE; i++ ){
             Image life = new Image(Assets.lifeCounter);
-            life.setPosition(x, lifePositionY);
+            life.setPosition(x, y);
             s.add(life);
             x += increment;
         }
@@ -108,14 +145,32 @@ class BattleGame extends Quiz{
             currentTime += delta;
             if (currentTime > spawnRate) {
                 spawnSoldier(Assets.enemySoldier, Settings.GAME_WIDTH,
-                        Settings.GAME_HEIGHT / 2 - Assets.enemySoldier.getHeight() / 2, enemySoldiers);
+                        Settings.GAME_HEIGHT / 2 - Assets.enemySoldier.getHeight() / 2, enemySoldiers, 1);
                 resetTime();
             }
             checkCollision();
             checkExitScreen();
             moveSoldiers();
+
+            renderPowerUps();
+
+
+
         }else{
             // do nothing
+        }
+    }
+
+    private void renderPowerUps() {
+        batch.begin();
+        showPowerUps();
+
+        batch.end();
+    }
+
+    private void showPowerUps() {
+        for(int i = 0; i < streak; i++){
+            batch.draw(powerUps.get(i), powerUps.get(i).getX(), powerUps.get(i).getY());
         }
     }
 
@@ -135,7 +190,7 @@ class BattleGame extends Quiz{
         if(!enemySoldiers.isEmpty() && enemySoldiers.get(0).getCurrentPosition() < 0 - enemySoldiers.get(0).getWidth()) {
             removeActor(enemySoldiers.get(0));
             enemySoldiers.remove(0);
-           loseHealth(myLifeSprites);
+            loseHealth(myLifeSprites);
         }
     }
 
@@ -154,9 +209,16 @@ class BattleGame extends Quiz{
                 Assets.playSound(Assets.fight);
                 Soldier myCollision = mySoldiers.get(0);
                 Soldier enemyCollision = enemySoldiers.get(0);
-                removeSoldiers(myCollision, enemyCollision);
-                mySoldiers.remove(0);
-                enemySoldiers.remove(0);
+                myCollision.loseHealth();
+                enemyCollision.loseHealth();
+                if(myCollision.getHealth() <= 0){
+                    removeSoldier(myCollision);
+                    mySoldiers.remove(0);
+                }
+                if(enemyCollision.getHealth() <= 0) {
+                    removeSoldier(enemyCollision);
+                    enemySoldiers.remove(0);
+                }
             }
         }
     }
@@ -170,13 +232,9 @@ class BattleGame extends Quiz{
         }
     }
 
-    private void removeSoldiers(Soldier myCollision, Soldier enemySoldier) {
+    private void removeSoldier(Soldier collision) {
         for (int i = 0; i < stage.getActors().size; i++) {
-            if(stage.getActors().get(i).equals(myCollision)){
-                stage.getActors().get(i).remove();
-                i--;
-            }
-            if(stage.getActors().get(i).equals(enemySoldier)){
+            if(stage.getActors().get(i).equals(collision)){
                 stage.getActors().get(i).remove();
                 i--;
             }
@@ -208,7 +266,7 @@ class BattleGame extends Quiz{
         super.incorrectAnswer(selection);
         setPenalty();
         toggleButtons(false);
-
+        resetStreak();
     }
 
     private void setPenalty() {
@@ -223,12 +281,31 @@ class BattleGame extends Quiz{
     @Override
     protected void correctAnswer(QuizButton selection) {
         super.correctAnswer(selection);
-        spawnSoldier(Assets.mySoldier, 0 - Assets.mySoldier.getWidth() / 2,
-                Settings.GAME_HEIGHT/2 - Assets.mySoldier.getHeight() / 2, mySoldiers);
+        powerUp();
+        if(bigSoldier) {
+            Assets.playSound(Assets.fanfare);
+            spawnSoldier(Assets.myBigSoldier, 0 - Assets.myBigSoldier.getWidth() / 2,
+                    Settings.GAME_HEIGHT / 2 - Assets.myBigSoldier.getHeight() / 2, mySoldiers, 2);
+        }else if(!bigSoldier) {
+            spawnSoldier(Assets.mySoldier, 0 - Assets.mySoldier.getWidth() / 2,
+                    Settings.GAME_HEIGHT / 2 - Assets.mySoldier.getHeight() / 2, mySoldiers, 1);
+        }else{
+            //do nothing
+        }
+        bigSoldier = NOT_READY;
     }
 
-    private void spawnSoldier(Texture t, int x, int y, ArrayList<Soldier> soldierGroup) {
-        Soldier newSoldier = new Soldier(t, x, y);
+    private void powerUp() {
+        if(streak < MAX_STREAK - 1){
+            streak++;
+        }else if(streak >= MAX_STREAK - 1){
+            resetStreak();
+            bigSoldier = READY;
+        }
+    }
+
+    private void spawnSoldier(Texture t, int x, int y, ArrayList<Soldier> soldierGroup, int health) {
+        Soldier newSoldier = new Soldier(t, x, y, health);
         soldierGroup.add(newSoldier);
         stage.addActor(newSoldier);
     }
@@ -241,9 +318,11 @@ class BattleGame extends Quiz{
     private void pauseGame() {
         switch(gameState){
             case GAME_RUNNING: gameState = GAME_PAUSED;
+                pauseButton.setText(" >");
                 toggleButtons(false);
                 break;
             case GAME_PAUSED: gameState = GAME_RUNNING;
+                pauseButton.setText("||");
                 toggleButtons(true);
                 break;
         }
