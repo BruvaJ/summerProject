@@ -3,6 +3,7 @@ package com.mygdx.game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -18,7 +19,7 @@ import java.util.*;
 /**
  * Created by Jonneh on 07/07/2016.
  */
-public abstract class Quiz extends ScreenAdapter{
+abstract class Quiz extends ScreenAdapter{
     final Stage stage = new Stage(new StretchViewport(Settings.GAME_WIDTH, Settings.GAME_HEIGHT));
     private final Table topTab = new Table();
     private final Table answerGrid = new Table();
@@ -38,10 +39,7 @@ public abstract class Quiz extends ScreenAdapter{
     int gameState = 0;
 
     Label completionMessage;
-
-
-    // by using Button and casting to text or image would it be easier to create?
-    QuizButton questionButton;
+    private QuizButton questionButton;
 
     final TextButton backButton = new TextButton("<< ", Assets.skin);
     final TextArea scoreText = new TextArea("", Assets.skin);
@@ -77,9 +75,17 @@ public abstract class Quiz extends ScreenAdapter{
     }
 
     protected void setCompletionMessage(){
+        hideAll();
         completionMessage.setAlignment(Align.center);
         completionMessage.setPosition(Settings.GAME_WIDTH/2,
                 Settings.GAME_HEIGHT/2);
+    }
+
+    private void hideAll() {
+        for (Actor a:stage.getActors()
+             ) {
+            a.setVisible(false);
+        }
     }
 
     protected void createAnswerSet() {
@@ -144,45 +150,48 @@ public abstract class Quiz extends ScreenAdapter{
         });
     }
 
-    protected void setQuestion() {
+    private void setQuestion() {
         questionButton.setText(questionButton.geteVocab());
     }
 
-    protected void buildQuestion() {
+    private void buildQuestion() {
         QuizButton tempItem = answerButtons.get(rand.nextInt(answerButtons.size()));
         questionButton.set(tempItem.getVocabItem());
     }
 
-    protected void setAnswers() {
+    private void setAnswers() {
         for (int i = 0; i < 4; i++
                 ){
             answerButtons.get(i).setText(answerButtons.get(i).getjVocab());
         }
     }
 
-    protected void checkAnswer(QuizButton button) {
+    protected void checkAnswer(QuizButton selection) {
         questionsAnswered = questionsAnswered + 1;
         checkGameState();
-        if (button.getIndex() == questionButton.getIndex()){
+        if (selection.getIndex() == questionButton.getIndex()){
             // show success
-            correctAnswer(button);
-            play();
+            correctAnswer(selection);
         }else{
             // no score. show fail (refer to failed button)
-            incorrectAnswer();
-            play();
+            incorrectAnswer(selection);
         }
     }
 
-    protected abstract void incorrectAnswer();
+    protected void incorrectAnswer(QuizButton selection){
+        Assets.playSound(Assets.incorrect);
+    }
 
-    protected abstract void correctAnswer(QuizButton button);
+    protected void correctAnswer(QuizButton button){
+        Assets.playSound(Assets.correct);
+    }
 
 
     protected void checkGameState() {
         if(questionsAnswered >= PLAY_COUNT)
             gameState = GAME_OVER;
     }
+
     protected void newQuestion() {
         buildAnswers();
         setAnswers();
@@ -190,23 +199,23 @@ public abstract class Quiz extends ScreenAdapter{
         setQuestion();
     }
 
-    protected void setScore() {
+    void setScore() {
         scoreText.setText("Score:    " + score + "/" + PLAY_COUNT);
     }
 
-    protected void buildAnswers() {
+    private void buildAnswers() {
         for (int i = 0; i < 4; i++
                 ){
             Gdx.app.log("currentPos",String.valueOf(currentPos + i));
             QuizItem tempItem = answerSet.get(answerIndices.get(i + currentPos));
             answerSet.remove(answerIndices.get(i + currentPos));
             answerButtons.get(i).set(tempItem);
-//             checkUnique(
+//             checkUnique();
         }
         currentPos += 4;
     }
 
-    protected void createUniqueIndex() {
+    private void createUniqueIndex() {
         for(int i = 0; i < answerSet.size(); i++){
             answerIndices.add(i);
         }
@@ -271,13 +280,21 @@ public abstract class Quiz extends ScreenAdapter{
         stage.addActor(questionGrid);
     }
 
-    public void setCurrentPos(int newValue){
+    void toggleButtons(boolean val) {
+        for (QuizButton b:answerButtons
+                ) {
+            b.setVisible(val);
+        }
+        questionButton.setVisible(val);
+    }
+
+    void setCurrentPos(int newValue){
         currentPos = newValue;
     }
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(255/255f, 255/255f, 255/255f, 1);
+        Gdx.gl.glClearColor(80/255f, 180/255f, 180/255f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.draw();
     }
