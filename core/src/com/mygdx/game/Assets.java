@@ -60,7 +60,7 @@ public class Assets {
         incorrect = Gdx.audio.newSound(Gdx.files.internal("sounds/incorrect.wav"));
         fight = Gdx.audio.newSound(Gdx.files.internal("sounds/fight.wav"));
         selection = Gdx.audio.newSound(Gdx.files.internal("sounds/selection.wav"));
-        start = Gdx.audio.newSound(Gdx.files.internal("sounds/start.wav"));
+        start = Gdx.audio.newSound(Gdx.files.internal("sounds/start.ogg"));
         fanfare = Gdx.audio.newSound(Gdx.files.internal("sounds/fanfare.wav"));
         gameOver = Gdx.audio.newSound(Gdx.files.internal("sounds/gameOver.wav"));
         victory = Gdx.audio.newSound(Gdx.files.internal("sounds/victory.wav"));
