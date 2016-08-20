@@ -48,11 +48,6 @@ abstract class Quiz extends ScreenAdapter{
 
     private final Random rand = new Random();
 
-    final static boolean NOT_LOOPING = false;
-    final static boolean IS_LOOPING = true;
-
-    boolean musicState;
-
     LanguageApp game;
 
     public Quiz(LanguageApp game){
