@@ -47,6 +47,15 @@ public class Assets {
     // need to use an assetmanager here　once loading in lots of data
     // http://stackoverflow.com/questions/32448088/how-do-i-make-textbuttons-using-libgdx/32452856#32452856
     public static void load() {
+        // at a later date there will be an extra file "Count" that may or may not be drawn. Different constructor can be used.
+        String[] eVocab = FileIO.readFile("eVocab.txt").split("\n");
+        String[] jVocab = FileIO.readFile("jVocab.txt").split("\n");
+        String[] vocabCount = FileIO.readFile("count.txt", eVocab.length).split("\n");
+        createVocabItems(eVocab, jVocab, vocabCount);
+
+        jFont = JapaneseGenerator.generate(jVocab);
+        eFont = new BitmapFont();
+
         correct = Gdx.audio.newSound(Gdx.files.internal("sounds/correct.wav"));
         incorrect = Gdx.audio.newSound(Gdx.files.internal("sounds/incorrect.wav"));
         fight = Gdx.audio.newSound(Gdx.files.internal("sounds/fight.wav"));
@@ -66,15 +75,6 @@ public class Assets {
         enemySoldier = new Texture(Gdx.files.internal("samurai.png"));
         lifeCounter = new Texture(Gdx.files.internal("heart.png"));
         powerUp = new Texture(Gdx.files.internal("powerUp.png"));
-
-        // at a later date there will be an extra file "Count" that may or may not be drawn. Different constructor can be used.
-        String[] eVocab = FileIO.readFile("eVocab.txt").split("\n");
-        String[] jVocab = FileIO.readFile("jVocab.txt").split("\n");
-        String[] vocabCount = FileIO.readFile("count.txt", eVocab.length).split("\n");
-        createVocabItems(eVocab, jVocab, vocabCount);
-
-        jFont = JapaneseGenerator.generate(jVocab);
-        eFont = new BitmapFont();
 
         makeSkin();
     }
