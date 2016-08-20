@@ -4,18 +4,16 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.*;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 
 import java.util.ArrayList;
 
@@ -41,21 +39,6 @@ class MainMenu extends ScreenAdapter {
 
     private void create() {
         Gdx.input.setInputProcessor(stage);
-
-        //workaround for json problem. Not to stay here. New class, assets, or japaneseGenerator?
-        // can programatically add all details to button before putting into json
-  //     TextButtonStyle jButton = new TextButtonStyle();
-  //     Assets.skin.add("jFont", Assets.jFont, BitmapFont.class);
-  //     jButton.font = Assets.skin.getFont("jFont");
-  //     Assets.skin.add("jButton", jButton, TextButtonStyle.class);
-  //     FileHandle fileHandle = Gdx.files.internal("uiskin.json");
-  //     FileHandle atlasFile = fileHandle.sibling("uiskin.atlas");
-
-  //     if (atlasFile.exists()) {
-  //         Assets.skin.addRegions(new TextureAtlas(atlasFile));
-  //     }
-  //     Assets.skin.load(fileHandle);
-
         createMainButtons();
         createOptionButtons();
         createVocabButtons();
@@ -89,9 +72,38 @@ class MainMenu extends ScreenAdapter {
     }
 
     private void createOptionButtons() {
-        final TextButton testButton = new TextButton("Test", Assets.skin);
-        testButton.setPosition(Settings.GAME_WIDTH/2 -50,Settings.GAME_HEIGHT/2 - 50);
-        optionsButtons.add(testButton);
+        final Button soundButton = new CheckBox("Sound", Assets.skin);
+        soundButton.setChecked(Settings.soundEnabled);
+        final Button musicButton = new CheckBox("Music", Assets.skin);
+        musicButton.setChecked(Settings.musicEnabled);
+
+
+        soundButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                super.clicked(event,x,y);
+                if(Settings.soundEnabled)
+                    Settings.setSound(false);
+                else if(!Settings.soundEnabled)
+                    Settings.setSound(true);
+            }
+        });
+
+        musicButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                super.clicked(event,x,y);
+                if(Settings.musicEnabled)
+                    Settings.setMusic(false);
+                else if(!Settings.musicEnabled)
+                    Settings.setMusic(true);
+            }
+        });
+        soundButton.setPosition(Settings.GAME_WIDTH/5, Settings.GAME_HEIGHT - Settings.GAME_HEIGHT / 3);
+        musicButton.setPosition(Settings.GAME_WIDTH/5, soundButton.getY() - soundButton.getHeight() * 2);
+
+        optionsButtons.add(soundButton);
+        optionsButtons.add(musicButton);
     }
 
     private void createTab() {
@@ -164,12 +176,22 @@ class MainMenu extends ScreenAdapter {
     private void createMainButtons() {
         final TextButton quizButton = new TextButton("QUIZ", Assets.skin);
         final TextButton playButton = new TextButton("PLAY", Assets.skin);
+        final TextButton easyButton = new CheckBox("Easy", Assets.skin);
+        easyButton.setChecked(true);
+        Settings.difficulty = Settings.EASY_MODE;
+        final Button mediumButton = new CheckBox("Medium", Assets.skin);
+        final Button hardButton = new CheckBox("Hard", Assets.skin);
+
+        easyButton.setPosition(300, 170);
+        mediumButton.setPosition(300, 150);
+        hardButton.setPosition(300, 130);
         quizButton.setPosition(100, 200);
         playButton.setPosition(300, 200);
 
         quizButton.addListener(new ChangeListener() {
             public void changed (ChangeEvent event, Actor actor) {
                 dispose();
+                modeSelectSound();
                 game.setScreen(new QuizGame(game));
             }
         });
@@ -177,12 +199,47 @@ class MainMenu extends ScreenAdapter {
         playButton.addListener(new ChangeListener() {
             public void changed (ChangeEvent event, Actor actor) {
                 dispose();
-                game.setScreen(new BattleGame(game, 5));
+                modeSelectSound();
+                game.setScreen(new BattleGame(game, Settings.difficulty));
+            }
+        });
+        easyButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                super.clicked(event,x,y);
+                hardButton.setChecked(false);
+                mediumButton.setChecked(false);
+                Settings.difficulty = Settings.EASY_MODE;
+            }
+        });
+        mediumButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                super.clicked(event,x,y);
+                easyButton.setChecked(false);
+                hardButton.setChecked(false);
+                Settings.difficulty = Settings.MEDIUM_MODE;
+            }
+        });
+        hardButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                super.clicked(event,x,y);
+                easyButton.setChecked(false);
+                mediumButton.setChecked(false);
+                Settings.difficulty = Settings.HARD_MODE;
             }
         });
 
+        mainButtons.add(easyButton);
+        mainButtons.add(mediumButton);
+        mainButtons.add(hardButton);
         mainButtons.add(quizButton);
         mainButtons.add(playButton);
+    }
+
+    private void modeSelectSound() {
+        Assets.playSound(Assets.selectMode);
     }
 
     public void render (float delta) {
