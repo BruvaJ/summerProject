@@ -229,20 +229,29 @@ abstract class Quiz extends ScreenAdapter{
         scoreText.setDisabled(true);
         backButton.setPosition(0, Settings.GAME_HEIGHT - backButton.getHeight());
         scoreText.setPosition(Settings.GAME_WIDTH - scoreText.getWidth(), Settings.GAME_HEIGHT - scoreText.getHeight());
-        answerGrid.center();
-        answerGrid.setPosition(Settings.GAME_WIDTH/2, Settings.GAME_HEIGHT/2 - Settings.GAME_HEIGHT/4);
 
+        int answerButtonX = Settings.GAME_WIDTH / 4;
+        int answerButtonY = Settings.GAME_HEIGHT / 4;
         for (int i = 0; i < 4; i++){
-            QuizButton tempButton = (new QuizButton("", Assets.skin, "jButton"));
+            QuizButton tempButton = (new QuizButton("                           ", Assets.skin, "jButton"));
+            tempButton.setPosition(answerButtonX - tempButton.getWidth()/2, answerButtonY);
             answerButtons.add(tempButton);
-            answerGrid.add(tempButton);
+            stage.addActor(tempButton);
+            tempButton.center();
+            tempButton.align(Align.center);
+            answerButtonX += Settings.GAME_WIDTH / 2;
+            if(answerButtonX>= Settings.GAME_WIDTH) {
+                answerButtonX = Settings.GAME_WIDTH / 4;
+                answerButtonY -= tempButton.getHeight() * 2.5;
+            }
         }
         questionButton = new QuizButton("", Assets.skin);
         questionButton.center();
         questionGrid.setPosition(Settings.GAME_WIDTH/2,Settings.GAME_HEIGHT/2 + Settings.GAME_HEIGHT/4);
         questionGrid.add(questionButton);
 
-        stage.addActor(answerGrid);
+
+
         stage.addActor(scoreText);
         stage.addActor(backButton);
         stage.addActor(questionGrid);

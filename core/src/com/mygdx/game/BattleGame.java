@@ -1,7 +1,6 @@
 package com.mygdx.game;
 
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -80,6 +79,7 @@ class BattleGame extends Quiz{
         int powerUpY = Settings.GAME_HEIGHT - (int)backButton.getHeight() - Assets.lifeCounter.getHeight() - Assets.powerUp.getHeight();
         for(int i = 0; i<MAX_STREAK; i++){
             Sprite powerUp = new Sprite(Assets.powerUp);
+            powerUp.setSize(Settings.GAME_WIDTH, Settings.GAME_HEIGHT);
             powerUp.setPosition(powerUpX, powerUpY);
             powerUps.add(powerUp);
             powerUpX += Assets.powerUp.getWidth();
@@ -163,6 +163,7 @@ class BattleGame extends Quiz{
 
     private void renderPowerUps() {
         batch.begin();
+        batch.setProjectionMatrix(stage.getViewport().getCamera().combined);
         showPowerUps();
 
         batch.end();
@@ -195,6 +196,7 @@ class BattleGame extends Quiz{
     }
 
     private void loseHealth(ArrayList<Image> s) {
+        Assets.playSound(Assets.loseHealth);
         removeActor(s.get(0));
         s.remove(0);
         if(s.size() < 1) {
@@ -355,11 +357,11 @@ class BattleGame extends Quiz{
 
     @Override
     protected void startMusic() {
-        Assets.battle.play();
+        Assets.playMusic(Assets.battle);
     }
 
     @Override
     protected void endMusic() {
-        Assets.battle.stop();
+        Assets.stopMusic(Assets.battle);
     }
 }
