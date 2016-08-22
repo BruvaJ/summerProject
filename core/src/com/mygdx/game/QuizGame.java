@@ -90,12 +90,12 @@ public class QuizGame extends Quiz{
 
     @Override
     protected void endMusic() {
-        Assets.quiz.stop();
+        Assets.stopMusic(Assets.quiz);
     }
 
     @Override
     protected void startMusic() {
-        Assets.quiz.play();
+        Assets.playMusic(Assets.quiz);
     }
 
 

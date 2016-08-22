@@ -17,23 +17,13 @@ import java.util.Set;
  */
 public class JapaneseGenerator {
     private static String FONT_CHARS;
-    public static String FONT_PATH;
-    public static FreeTypeFontGenerator generator;
-    public static FreeTypeFontGenerator.FreeTypeFontParameter parameter;
 
 
 
     JapaneseGenerator(){
-        // this should be made to prepare font from a SET made from assets. local variable
-        // OR generator can be reused every time japanese is printed on screen (not ideal i don't think)
-
-        // move this out of constructor into a reusable method.  with parameter dicating the FONT_CHARS (as discussed above)
-        // or should this just be done in Assets. no need for JapaneseGenerator class really...
-
     }
 
     public static BitmapFont generate(String[] s){
-        // static class members should be used instead?
         FONT_CHARS = uniqueChars(s);
 
         final String FONT_PATH = "chichiya.ttf";

@@ -1,4 +1,4 @@
-a / an
+a    an
 a lot
 a lot of ~
 a piece of ~
@@ -18,7 +18,7 @@ also
 always
 am
 amazing
-america
+America
 American
 and
 animal

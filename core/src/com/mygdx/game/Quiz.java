@@ -157,6 +157,8 @@ abstract class Quiz extends ScreenAdapter{
 
     private void setQuestion() {
         questionButton.setText(questionButton.geteVocab());
+        if(Assets.pronunciations.containsKey(questionButton.geteVocab()))
+             Assets.playSound(Assets.pronunciations.get(questionButton.geteVocab()));
     }
 
     private void buildQuestion() {

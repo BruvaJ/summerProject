@@ -10,7 +10,9 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by Jonneh on 04/07/2016.
@@ -25,6 +27,7 @@ public class Assets {
     static Texture enemySoldier;
     static Texture lifeCounter;
     static Texture powerUp;
+
     static Sound loseHealth;
     static Sound correct;
     static Sound incorrect;
@@ -35,6 +38,11 @@ public class Assets {
     static Sound start;
     static Sound victory;
     static Sound gameOver;
+
+    static HashMap<String, Sound> pronunciations;
+
+
+
     static Music battle;
     static Music quiz;
 
@@ -49,6 +57,7 @@ public class Assets {
     public static void load() {
         // at a later date there will be an extra file "Count" that may or may not be drawn. Different constructor can be used.
         start = Gdx.audio.newSound(Gdx.files.internal("sounds/start.ogg"));
+
         correct = Gdx.audio.newSound(Gdx.files.internal("sounds/correct.wav"));
         incorrect = Gdx.audio.newSound(Gdx.files.internal("sounds/incorrect.wav"));
         fight = Gdx.audio.newSound(Gdx.files.internal("sounds/fight.wav"));
@@ -79,6 +88,14 @@ public class Assets {
         powerUp = new Texture(Gdx.files.internal("powerUp.png"));
 
         makeSkin();
+
+        pronunciations = new HashMap<String, Sound>();
+        for(int i = 0; i < eVocab.length; i++) {
+            String path = "pronunciations/" + eVocab[i].substring(0,eVocab[i].length()-1) + ".wav";
+            if(Gdx.files.internal(path).exists()) {
+                pronunciations.put(eVocab[i], (Gdx.audio.newSound(Gdx.files.internal(path))));
+            }
+        }
     }
 
     private static void makeSkin() {
